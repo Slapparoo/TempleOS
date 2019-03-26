@@ -1,22 +1,16 @@
-                           TempleOS
+TempleOS Explorers Edition
 
-You can't do much until you burn a TempleOS CD/DVD from the ISO file
-and boot it, or you aim your virtual machine's CD/DVD at the ISO file
-and boot.  TempleOS files are compressed and the source code can only be 
-compiled by the TempleOS compiler... which is available when you boot
-the CD/DVD.  TempleOS is 100% open source with all source present.
+Explorers Edition builds on top of the base TempleOS to add new hardware support and installation options. 
 
-TempleOS is 64-bit and will not run on 32-bit hardware.
+What I intepret as Terrys intention for the OS will be honoured what I interpret as Gods intention will not, with the Ultimate Goal being a light weight Hobby OS, that is a fun place to explore and develop new ideas. Something that stands apart from the main stream Commercial OS's and is developed independantly and encourages users to get in an get their hands dirty and try new things.
 
-TempleOS requires 512 Meg of RAM minimum.
+Initial Goals
+The initial Goals are to bring the core of the OS up so it can be installed and run on (as many as possible) x64 PC's
 
-TempleOS may require you to enter I/O port addresses for the CD/DVD drive
-and the hard drive.  In Windows, you can find I/O port info in the
-Accessories/System Tools/System Info/Hardware Resources/I/O ports.
-Look for and write down "IDE", "ATA" or "SATA" port numbers.  In Linux, use
-"lspci -v".  Then, boot the TempleOS CD and try all combinations.  (Sorry,
-it's too difficult for TempleOS to figure-out port numbers, automatically.)
+* 32 Bit VESA Graphics 
+* AHCI Support
+* More installation options
+* Focus on the core Kernel
+* Ability to easily manage code changes in source control
 
-The source code can also be found at the TempleOS web site, 
-http://www.templeos.org but cannot be compiled outside TempleOS because
-it's HolyC, a nonstandard C/C++ dialect, and asm.
+
