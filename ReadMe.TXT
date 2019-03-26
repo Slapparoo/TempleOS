@@ -9,7 +9,7 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 
 * 32 Bit VESA Graphics 
 * AHCI Support
-* More installation options
+* More installation options (Maybe something using LILI  style Virtualbox on a USB stick)
 * Focus on the core Kernel
 * Ability to easily manage code changes in source control
 
