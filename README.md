@@ -1,4 +1,3 @@
-
 #TempleOS Explorers Edition
 
 Explorers Edition builds on top of the base TempleOS to add new hardware support and installation options. 
