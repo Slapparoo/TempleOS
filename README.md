@@ -1,5 +1,5 @@
 
-TempleOS Explorers Edition
+#TempleOS Explorers Edition
 
 Explorers Edition builds on top of the base TempleOS to add new hardware support and installation options. 
 
@@ -13,3 +13,5 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 * More installation options (Maybe something using LILI  style Virtualbox on a USB stick)
 * Focus on the core Kernel
 * Ability to easily manage code changes in source control
+
+[Wiki](https://github.com/Slapparoo/TempleOS-EE/wiki)
