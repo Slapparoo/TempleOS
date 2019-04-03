@@ -14,4 +14,5 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 * Ability to easily manage code changes in source control
 
 [Wiki](https://github.com/Slapparoo/TempleOS-EE/wiki)
+
 [Boot TempleOS with Grub2](https://github.com/Slapparoo/TempleOS-EE/wiki/Boot-TempleOS-with-Grub2)
