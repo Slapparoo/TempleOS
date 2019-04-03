@@ -52,7 +52,7 @@ Bool DrvTypeSet(U8 drv_let,I64 type=FSt_REDSEA)
   }
 }
 
-U0 Fmt(I64 drv_let,Bool quick=TRUE,Bool confirm=TRUE,I64 type=FSt_FAT32)
+U0 Fmt(I64 drv_let,Bool quick=TRUE,Bool confirm=TRUE,I64 type=FSt_FAT32)
 {//Format hard drive or RAM drive.
 //$BK,1$Warning:$BK,0$ Destroys all prev info.
   //quick=FALSE means fill entire drive with zeros.
