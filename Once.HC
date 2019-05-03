@@ -42,13 +42,13 @@ U0 Tmp()
       Type("::/Doc/Customize.DD");
       if (FileFind("::/Misc/Tour")) {
 	"\nTake Tour";
-	if (YorN) {
+/*	if (YorN) {
 	  DocBottom;
 	  Cd("::/Misc/Tour");
 	  InFile("Tour");
 	}
-      }
-      break;
+*/      }
+      break;
   }
 }
 
