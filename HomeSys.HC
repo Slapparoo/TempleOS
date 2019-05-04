@@ -25,10 +25,11 @@ U0 StartUpTasks()
   user1=User;
   user2=User;
   WinToTop(user1);
-  WinTileVert;
+//  WinTileVert;
+  WinMax(user1);
   "Boot Time:%7.3fs\n",tS;
   XTalk(user1,"Cd;#include \"Once\";\n");
-  Silent;	//no output to scrn
+  Silent;	//no output to scrn
   ACInit("/*;!*/Bible.TXT*");
   Silent(OFF); //no output to scrn
 }

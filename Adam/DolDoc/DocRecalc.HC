@@ -913,12 +913,12 @@ rc_adjust_xy:
 	else
 	  doc->flags&=~DOCF_HIGHLIGHT;
 	break;
-//      case DOCT_BLINK:
-//	if (doc_e->attr)
-//	  doc->flags|=DOCF_BLINK;
-//	else
-//	  doc->flags&=~DOCF_BLINK;
-//	break;
+      case DOCT_BLINK:
+	if (doc_e->attr)
+	  doc->flags|=DOCF_BLINK;
+	else
+	  doc->flags&=~DOCF_BLINK;
+	break;
       case DOCT_INVERT:
 	if (doc_e->attr)
 	  doc->flags|=DOCF_INVERT;

@@ -28,7 +28,7 @@ LBts(&Fs->display_flags,DISPLAYf_CHILDREN_NOT_ON_TOP);
 LBts(&Fs->display_flags,DISPLAYf_SHOW);
 RegInit;
 LBts(&sys_run_level,RLf_REGISTRY);
-if (!ins_reg.registered)
+if (!ins_reg.registered)
   InsUnreg;
 
 WallPaperInit;

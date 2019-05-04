@@ -26,7 +26,7 @@ public U0 EdCursorLeft(CDoc *doc,I64 sc=I64_MIN)
   CDocEntry *doc_ce=doc->cur_entry,*original_ce=doc_ce,*doc_ne;
   I64 cc=doc->cur_col,y=doc_ce->y;
   if (sc!=I64_MIN) sc=sc.u32[0];
-  if (sc>=0 && sc&SCF_CTRL) {
+  if ((sc>=0 && sc&SCF_CTRL)  || sc.u8[0] == SC_HOME) {
     while (doc_ce->last!=doc && (doc_ce->last->y==y ||
 	  doc_ce->de_flags & (DOCEF_SKIP|DOCEF_FILTER_SKIP)))
       doc_ce=doc_ce->last;  //TODO: sel? recurse?
@@ -98,7 +98,7 @@ public U0 EdCursorRight(CDoc *doc,I64 sc=I64_MIN)
   CDocEntry *doc_ce=doc->cur_entry,*original_ce=doc_ce,*doc_ne;
   I64 cc=doc->cur_col,y=doc_ce->y,old_de_flags,old_color;
   if (sc!=I64_MIN) sc=sc.u32[0];
-  if (sc>=0 && sc&SCF_CTRL) {
+  if ((sc>=0 && sc&SCF_CTRL) || sc.u8[0] == SC_END) {
     while (doc_ce!=doc && doc_ce->next->y==y &&
 	  doc_ce->next->type_u8!=DOCT_SOFT_NEW_LINE && doc_ce->next!=doc &&
 	  (doc_ce->next->type_u8!=DOCT_NEW_LINE || !(doc->flags & DOCF_FORM)) ||

@@ -18,6 +18,7 @@ $ID,2$For $FG,2$"%n"$FG$, $FG,2$"%d"$FG$ or $FG,2$"%u"$FG$, the <aux_fmt_num> ca
 For $FG,2$"%c"$FG$ or $FG,2$"%C"$FG$, the <aux_fmt_num> repeats the char that many times.$ID,-2$
 
 <fmt_code>:
+  $FG,2$"%X"$FD$ Hexidecimal. 
 
 $ID,2$$FG,2$"%n"$FG$ floating point in engineering notation, exponents being multiples of three.  If it has a <aux_fmt> code, it will display scientific units letters.
 

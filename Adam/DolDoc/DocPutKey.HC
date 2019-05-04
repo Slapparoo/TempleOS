@@ -54,7 +54,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 	      } else
 		sc&=~SCF_CTRL;
 //Fall Through to SC_END
-	    case SC_END:
+//	    case SC_END:
 	      if (!(sc&SCF_CTRL)) {
 		if (sc&SCF_KEY_DESC) {
 		  if (sc&SCF_SHIFT)
@@ -84,7 +84,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 	      } else
 		sc&=~SCF_CTRL;
 //Fall Through to SC_HOME
-	    case SC_HOME:
+//	    case SC_HOME:
 	      if (!(sc&SCF_CTRL)) {
 		if (sc&SCF_KEY_DESC) {
 		  if (sc&SCF_SHIFT)
@@ -152,6 +152,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 		}
 	      }
 	      break;
+	    case SC_HOME:
 	    case SC_CURSOR_LEFT:
 	      if (sc&SCF_KEY_DESC) {
 		if (sc&SCF_CTRL)
@@ -165,6 +166,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 	      } else
 		EdCursorLeft(doc,sc);
 	      break;
+	    case SC_END:
 	    case SC_CURSOR_RIGHT:
 	      if (sc&SCF_KEY_DESC) {
 		if (sc&SCF_CTRL)

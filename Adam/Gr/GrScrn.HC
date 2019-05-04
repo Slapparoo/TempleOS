@@ -301,9 +301,11 @@ U0 GrUpdateTextFG()
 	if (i&0x10) i|=~0x1F;
 	i=w1*i+j;
 	if (dst_start<=dst(U8 *)+i<dst_end)
-	  GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst(U8 *)+i,w1);
+//	  GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst(U8 *)+i,w1);
+	  GrRopEquU8NoClipping(cur_ch&(0xFFF),dst(U8 *)+i,w1);
       } else
-	GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst,w1);
+//	GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst,w1);
+	GrRopEquU8NoClipping(cur_ch&(0xFFF),dst,w1);
       dst(U8 *)+=8;
     }
     src+=w4;

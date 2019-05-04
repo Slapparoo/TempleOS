@@ -151,7 +151,7 @@ public U0 ACInit(U8 *mask=NULL)
   Free(ac.cur_word);
   ac.cur_word=NULL;
 
-  if (mask)
+  if (mask)
     ACMainFileLstTraverse(mask);
 
   ACDWordsLoad;

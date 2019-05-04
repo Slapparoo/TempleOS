@@ -122,6 +122,12 @@ Bool MyPutKey(I64 ch,I64 sc)
 	else
 	  WinTileVert;
 	return TRUE;
+      case 'p':
+	if (sc&SCF_KEY_DESC)
+	  KeyDescSet("Cmd /Lsh");
+	else
+	  Lsh;
+	return TRUE;
       case 'l':
 	if (sc&SCF_KEY_DESC)
 	  KeyDescSet("Edit/Put Link to Cur Pos on Clip");

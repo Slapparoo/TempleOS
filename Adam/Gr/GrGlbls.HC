@@ -48,9 +48,8 @@ public class CGrGlbls
 HashPublic("GR_WIDTH",HTT_DEFINE_STR);;
 HashPublic("GR_HEIGHT",HTT_DEFINE_STR);;
 
-#help_index "Char;TextBase Layer/Char"
+#help_index "Char;TextBase Layer/Char"
 DefinePrint("TEXT_ROWS","%d",text.rows);;;
 HashPublic("TEXT_ROWS",HTT_DEFINE_STR);;;
 DefinePrint("TEXT_COLS","%d",text.cols);;;
 HashPublic("TEXT_COLS",HTT_DEFINE_STR);;;
-

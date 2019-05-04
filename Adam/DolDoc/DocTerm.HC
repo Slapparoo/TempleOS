@@ -26,13 +26,14 @@ public CDoc *DocBorderNew(CDoc *pdoc)
     doc_e->tag_cb=&EdDollarTypeCB;
   }
   DocPrint(bdoc,"$$CM+H+TY+NC,0,-1$$");
-  doc_e=DocPrint(bdoc,"$$DA+H-TRM-P+BD+RD+CX+IV,LEN=STR_LEN-1,"
-	"A=\"%%s...\",SCX=15$$");
+  doc_e=DocPrint(bdoc,"$$DA+H-TRM-P+BD+RD+CX+IV,LEN=STR_LEN-1,A=\"%%s...\"$$");
   doc_e->data=&Fs->task_title;
   DocDataFmt(bdoc,doc_e);
   DocPrint(bdoc,"$$CM+H+NC,1,0$$$$TX+H+BD+IV,\"%X\"$$",Fs);
   DocPrint(bdoc,"$$TX+H+RX+BD,\"[X]\"$$");
-  DocPrint(bdoc,"$$BK,1$$$$TX+H+LX+BD,\"MENU\"$$$$BK,0$$");
+//  DocPrint(bdoc,"$$BK,1$$$$TX+H+LX+BD,\"MENU\"$$$$BK,0$$");
+  DocPrint(bdoc,"$$TX+H+LX+BD,\"MENU\"$$");
+
   return bdoc;
 }
 
