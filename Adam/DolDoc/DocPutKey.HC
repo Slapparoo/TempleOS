@@ -515,7 +515,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 	    if (sc&SCF_KEY_DESC)
 	      KeyDescSet("Cmd /Personal Menu");
 	    else {
-	      m=DocRead("~/PersonalMenu.DD.Z");
+	      m=DocRead("~/PersonalMenu.DD");
 	      DocMenu(m);
 	      DocDel(m);
 	    }
