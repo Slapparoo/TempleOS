@@ -26,7 +26,7 @@ U0 StartUpTasks()
   user2=User;
   WinToTop(user1);
 //  WinTileVert;
-  WinMax(user1);
+  WinMax(user1);
   "Boot Time:%7.3fs\n",tS;
   XTalk(user1,"Cd;#include \"Once\";\n");
   Silent;	//no output to scrn
@@ -36,4 +36,4 @@ U0 StartUpTasks()
 
 StartUpTasks;
 
-"\nTempleOS V%5.3f\t%D %T\n\n",sys_os_version,sys_compile_time,sys_compile_time;
+"\nTempleOS EE V%5.4f\t%D %T\n\n",sys_os_version,sys_compile_time,sys_compile_time;
