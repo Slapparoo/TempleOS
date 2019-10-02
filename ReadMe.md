@@ -1,7 +1,7 @@
 # TempleOS Explorers Edition
 
 ```
-I merged the archive branch into the master and will now be workign on the master branch
+I merged the archive branch into the master and will now be working on the master branch
 ```
 
 Explorers Edition builds on top of the base TempleOS to add new hardware support and installation options. 
