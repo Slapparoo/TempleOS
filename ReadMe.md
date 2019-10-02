@@ -1,3 +1,8 @@
+# Please use the Mast Branch
+I merged the archive brance into the master branch as there are featues in Github which are available on th emaster brance but not available on archive.
+
+All future work will be done on master.
+
 # TempleOS Explorers Edition
 
 Explorers Edition builds on top of the base TempleOS to add new hardware support and installation options. 
