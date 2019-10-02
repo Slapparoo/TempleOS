@@ -19,7 +19,7 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 * Add newer OP codes to the assembler and compiler 
 * Develop hardware graphics driver
 
-[Wiki](https://github.com/Slapparoo/TempleOS-EE/wiki)
+[Wiki](https://github.com/Slapparoo/TempleOS-EE/wiki) 
 
 [Boot TempleOS with Grub2](https://github.com/Slapparoo/TempleOS-EE/wiki/Boot-TempleOS-with-Grub2)
 
