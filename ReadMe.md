@@ -1,5 +1,9 @@
 # TempleOS Explorers Edition
 
+```
+I merged the archive branch into the master and will now be workign on the master branch
+```
+
 Explorers Edition builds on top of the base TempleOS to add new hardware support and installation options. 
 
 What I intepret as Terrys intention for the OS will be honoured what I interpret as Gods intention will not, with the Ultimate Goal being a light weight Hobby OS, that is a fun place to explore and develop new ideas. Something that stands apart from the main stream Commercial OS's and is developed independantly and encourages users to get in and get their hands dirty and try new things.
