@@ -32,7 +32,7 @@
 #include "Mem/MakeMem"
 #include "Lib/FontStd"
 #include "Lib/FontCyrillic"
-#include "Lib/AsmFont"
+//#include "Lib/AsmFont"
 #include "StrB"
 #include "KHashA"
 #include "KInts"

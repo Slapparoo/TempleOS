@@ -4046,7 +4046,7 @@ public class CWindow24
 #define GREEN32    0x008800
 
 //$SY,-3$#define CYAN32     0x00FFFF
-#define CYAN32     0x00AAAA
+#define CYAN32     0x006060
 
 #define RED32      0xAA4444
 #define PURPLE32   0x4B0082
@@ -4056,7 +4056,7 @@ public class CWindow24
 #define DKGREY32   0x444444
 #define LTBLUE32   0x4169E1
 #define LTGREEN32  0xADFF2F
-#define LTCYAN32   0x00FFFF
+#define LTCYAN32   0x00AAAA
 
 #define LTRED32    0xFF8888
 #define LTPURPLE32 0x9932CC

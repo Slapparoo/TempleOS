@@ -518,7 +518,7 @@ public U0 WinTileVert()
   POPFD
 }
 
-public U0 WinMax(CTask *task=NULL)
+public U0 WinMax(CTask *task=NULL)
 {//Maximize task's window
   I64 no_border;
   if (!task) task=Fs;
@@ -543,14 +543,14 @@ public Bool WinBorder(Bool val=OFF,CTask *task=NULL)
   if (val) {
     if (!old_has_border) {
       LBtr(&task->display_flags,DISPLAYf_NO_BORDER);
-     // task->win_left++; task->win_right--;
+      task->win_left++; task->win_right--;
       task->win_top++;	task->win_bottom--;
       TaskDerivedValsUpdate(task,FALSE);
     }
   } else {
     if (old_has_border) {
       LBts(&task->display_flags,DISPLAYf_NO_BORDER);
-     // task->win_left--; task->win_right++;
+      task->win_left--; task->win_right++;
       task->win_top--;	task->win_bottom++;
       TaskDerivedValsUpdate(task,FALSE);
     }

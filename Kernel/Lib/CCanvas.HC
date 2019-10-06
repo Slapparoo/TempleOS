@@ -311,7 +311,7 @@ U0 CCanvas_cleaned(CCanvas *this) {
 
 U0 CCanvas_printFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   // Brook change to dynamic font
-  U64 letterT = text.font[letter&0xFF],
+  U64 letterT = text.font[letter&0xFF],
    count, rowInc = this->width - FONT_WIDTH; // FONT_WIDTH
   U32 *dst;
   dst = this->buffer + (this->width * y) + x;
@@ -329,12 +329,14 @@ U0 CCanvas_printFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   // FONT_WIDTH x FONT_HEIGHT
     if (letterT & 0x1) {
       if (CRect_pxinside(this->clipRct, x, y)) {
-        _CCanvas_tranformPixel(dst, fg);
+//        _CCanvas_tranformPixel(dst, fg);
+          *dst = fg;
       }
       dst++;
     } else {
       if (CRect_pxinside(this->clipRct, x, y)) {
-        _CCanvas_tranformPixel(dst, bg);
+//        _CCanvas_tranformPixel(dst, bg);
+          *dst = bg;
       }
       dst++;
     }

@@ -8,18 +8,6 @@ U0 ScrollScrnDown(CCanvas *canvas, U64 xdist)
   MemCpyU32(canvas->buffer, canvas->buffer + sStartLoc, canvas->size - sStartLoc);
 }
 
-/*
-U0 ScrollScrnDown24(CGr32Scrn *scrn, U64 xdist)
-{// 
-  //Brook Add bounds checks
-
-  U64 
-   sStartLoc = xdist * scrn->width;
-
-  MemCpyU32(scrn->buffer, scrn->buffer + sStartLoc, scrn->size - sStartLoc);
-}
-*/
-
 U0 RawPutChar(I64 ch)
 {/*For RAW output during boot and in debugger.
 
@@ -82,7 +70,7 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
 //Scroll cached image
         ScrollScrnDown(screen32_, FONT_HEIGHT);
         MemSetU32(screen32_->buffer+screen32_->size -(screen32_->width*FONT_HEIGHT),
-               WIN_BACK,screen32_->width*FONT_HEIGHT);
+               WIN_BACK,screen32_->width*FONT_HEIGHT);
 
 	text.raw_col-=text.cols;
 	row=text.rows-1;
@@ -90,7 +78,7 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
 
         PUSHFD
         CLI
-          screen32_->printAsmFont(screen32_, ch&255, col*8, row*8, WIN_FG, WIN_BACK);
+          screen32_->printFont(screen32_, ch&255, col*8, row*8, WIN_FG, WIN_BACK);
         POPFD
 
     }
