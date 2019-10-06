@@ -27,7 +27,7 @@ Cd(__DIR__);;
 #include "SpriteSideBar"
 #include "SpriteEd"
 #include "SpriteMain"
-
+//#include "GrUpdateDiffs"
 #include "GrEnd"
 
 Cd("..");;

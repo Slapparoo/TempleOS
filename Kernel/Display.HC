@@ -1,3 +1,25 @@
+
+U0 ScrollScrnDown(CCanvas *canvas, U64 xdist)
+{// 
+  //Brook Add bounds checks
+
+  U64 sStartLoc = xdist * canvas->width;
+
+  MemCpyU32(canvas->buffer, canvas->buffer + sStartLoc, canvas->size - sStartLoc);
+}
+
+/*
+U0 ScrollScrnDown24(CGr32Scrn *scrn, U64 xdist)
+{// 
+  //Brook Add bounds checks
+
+  U64 
+   sStartLoc = xdist * scrn->width;
+
+  MemCpyU32(scrn->buffer, scrn->buffer + sStartLoc, scrn->size - sStartLoc);
+}
+*/
+
 U0 RawPutChar(I64 ch)
 {/*For RAW output during boot and in debugger.
 
@@ -6,8 +28,8 @@ the normal scrn text output routine.
 
 See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
 */
-  I64 i,row,col;
-  U8 *ptr,*ptr1,*ptr2;
+  I64 /*i,*/row,col;
+  U8 *ptr,/* *ptr1,*ptr2 */;
 
   if (!(text.raw_flags&RWF_SHOW_DOLLAR)) {
     if (ch=='$$') {
@@ -42,7 +64,9 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
   } else if (Bt(char_bmp_displayable,ch)) {
     row=text.raw_col/text.cols%text.rows;
     col=text.raw_col%text.cols;
-    if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
+    // Brook rlf vga no set
+    if (!Bt(&sys_run_level,RLf_24BIT_GRP)) { //if text mode
+//    if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
       if (text.raw_flags&RWF_SCROLL && text.raw_col && !row && !col) {
 	MemCpy(text.vga_text_alias,text.vga_text_alias+text.cols*2,
 	      text.cols*(text.rows-1)*2);
@@ -54,32 +78,21 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
       ptr[0]=ch;
       ptr[1]=BLACK<<4+WHITE;
     } else {
-      OutU8(VGAP_IDX,VGAR_MAP_MASK);
-      OutU8(VGAP_DATA,0x0F); //All planes -- WHITE
       if (text.raw_flags&RWF_SCROLL && text.raw_col && !row && !col) {
 //Scroll cached image
-	MemCpy(text.raw_scrn_image,
-	      text.raw_scrn_image+GR_WIDTH*FONT_HEIGHT>>3,
-	      GR_WIDTH*(GR_HEIGHT-FONT_HEIGHT)>>3);
-	MemSet(text.raw_scrn_image+GR_WIDTH*(GR_HEIGHT-FONT_HEIGHT)>>3,0,
-	      GR_WIDTH*FONT_HEIGHT>>3);
+        ScrollScrnDown(screen32_, FONT_HEIGHT);
+        MemSetU32(screen32_->buffer+screen32_->size -(screen32_->width*FONT_HEIGHT),
+               WIN_BACK,screen32_->width*FONT_HEIGHT);
 
-	MemCpy(text.vga_alias,text.raw_scrn_image,GR_WIDTH*GR_HEIGHT>>3);
 	text.raw_col-=text.cols;
 	row=text.rows-1;
       }
-      PUSHFD
-      CLI
-      ptr=ptr1=col+row*GR_WIDTH*FONT_HEIGHT>>3;
-      ptr+=text.vga_alias;
-      ptr1+=text.raw_scrn_image; //Write to cached image as well
-      ptr2=&text.font[ch&255];
-      for (i=0;i<FONT_HEIGHT;i++) {
-	*ptr=*ptr1=rev_bits_table[*ptr2++];
-	ptr+=GR_WIDTH>>3;
-	ptr1+=GR_WIDTH>>3;
-      }
-      POPFD
+
+        PUSHFD
+        CLI
+          screen32_->printAsmFont(screen32_, ch&255, col*8, row*8, WIN_FG, WIN_BACK);
+        POPFD
+
     }
     text.raw_col++;
   }
@@ -87,6 +100,8 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
 
 U0 VGAFlush()
 {//Flush winmgr vga cache, so updates whole scrn.
+  // Brook need to hook into this
+
   LBts(&sys_semas[SEMA_FLUSH_VGA_IMAGE],0);
 }
 

@@ -1,6 +1,6 @@
 //Make Your own Distro by #include-ing this file.
 
-#define STD_DISTRO_DVD_CFG	"TB\nScale2Mem(2048,0x40000)\nT \n\n\n\n"
+#define STD_DISTRO_DVD_CFG	"TB\nScale2Mem(2048,0x40000)\nT\n\n\n\n"
 
 U0 MakeMyISO(U8 *_out_iso_filename)
 {//Does everything with current drive.
@@ -47,4 +47,3 @@ U0 MakeMyISO(U8 *_out_iso_filename)
 MakeMyISO("/Tmp/MyDistro.ISO.C");
 
 // Study my account examples $LK,"Cfg Strs",A="FL:::/Demo/AcctExample/TOS/TOSCfg.HC,1"$, $LK,"Update Funs",A="FL:::/Demo/AcctExample/TOS/TOSDistro.HC,1"$.
-

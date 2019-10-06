@@ -165,8 +165,46 @@ public _extern _D3_ZERO CD3 *D3Zero(CD3 *dst); //To zero
 #help_index "Memory"
 public _extern _MEMCMP I64 MemCmp(
 	U8 *ptr1,U8 *ptr2,I64 cnt); //Compare chunk of memory.
-public _extern _MEMCPY U8 *MemCpy(
+
+public _extern _MEMCPY U8 *MemCpyU8(
 	U8 *dst,U8 *src,I64 cnt); //Copy chunk of memory. Only goes fwd.
+public _extern _MEMCPYU16 U8 *MemCpyU16(
+	U8 *dst,U8 *src,I64 cnt); //Copy chunk of memory. Only goes fwd.
+public _extern _MEMCPYU32 U8 *MemCpyU32(
+	U8 *dst,U8 *src,I64 cnt); //Copy chunk of memory. Only goes fwd.
+public _extern _MEMCPYU64 U8 *MemCpyU64(
+	U8 *dst,U8 *src,I64 cnt); //Copy chunk of memory. Only goes fwd.
+
+
+/**
+  Brook These need to move somewhere else
+  cnt is the number if bytes to copy
+  
+  Also it needs word (64x) alignment
+  Also this may not even be faster based
+  on branch prediction and and memory cache
+  burst reading/writing
+*/
+U0 MemCpy(U8 *dst, U8 *src, I64 cnt)
+{
+  if (cnt & 0xF == 0x8) {
+    MemCpyU64(dst, src, cnt>>3);
+  }
+
+  else if (cnt & 0x7 == 0x4) {
+    MemCpyU32(dst, src, cnt>>2);
+  }
+
+  else if (cnt & 0x3 == 0x2) {
+    MemCpyU16(dst, src, cnt>>1);
+  }
+  
+  else {
+    MemCpyU8(dst, src, cnt);
+  }
+};
+
+
 public _extern _MEMSET U8 *MemSet(
 	U8 *dst,I64 val,I64 cnt); //Set chunk of U8s to value.
 public _extern _MEMSET_I64 I64 *MemSetI64(
@@ -290,5 +328,12 @@ public _intern IC_FS CTask *Fs(); //FS seg reg points to the current $LK,"CTask"
 #help_index "Time/CPU Cycles"
 #help_file "::/Doc/TimeCycles"
 public _intern IC_RDTSC I64 GetTSC(); //Get time stamp counter.
+
+
+#help_index "Vesa"
+public _extern SYS_VESA CVesaInfo vesa_info;
+public _extern SYS_VBE2 CVBE2Info vbe2_info;
+public _extern MODES_ARRY CVesaInfo vesa_modes[50];
+
 
 #help_index ""

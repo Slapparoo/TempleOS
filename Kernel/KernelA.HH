@@ -40,6 +40,8 @@ extern class CTask;
 #define INVALID_PTR	I64_MAX
 #define STR_LEN 144
 
+#define B_VERSION "Brook v1"
+
 //(Int to F64 conversion is signed)
 //Turn off 80-bit float constants with $LK,"OPTf_NO_BUILTIN_CONST",A="MN:OPTf_NO_BUILTIN_CONST"$.
 #define U64_F64_MAX (0x43F0000000000000(F64))
@@ -203,6 +205,19 @@ public class COrder2D3
   F64	x,y,z,
 	DxDt,DyDt,DzDt;
 };
+
+
+#help_index "Graphics/24 bit Color"
+/*
+0 = Dark, 0xFF = light
+0,0,0 = black, 0xff, 0xff, 0xff = white
+*/
+
+public class CColor32 // U32
+{ // 24bit Color color used to set pixels
+  U8 red, green, blue, operation;
+};
+
 
 #define MSF_INACTIVE		1
 #define MSF_FIXED		2
@@ -470,6 +485,8 @@ class CKernel
 #define RLf_ADAM_SERVER		18
 #define RLf_ONCE_ADAM		19
 #define RLf_ONCE_USER		20
+#define RLf_24BIT_GRP		21
+
 
 #define RLF_16BIT		0x000001
 #define RLF_VGA			0x000002
@@ -492,6 +509,8 @@ class CKernel
 #define RLF_ADAM_SERVER		0x040000
 #define RLF_ONCE_ADAM		0x080000
 #define RLF_ONCE_USER		0x100000
+#define RLF_24BIT_GRP		0x200000
+
 
 #help_index "Processor"
 #define LAPIC_BASE		0xFEE00000
@@ -2910,6 +2929,7 @@ public class CDevGlbls
 #define ROPF_PROBABILITY_DITHER		0x80000000
 
 #help_index "Graphics/Color"
+// Brook Old remove
 #define TRANSPARENT		0xFF
 #define BLACK			0
 #define BLUE			1
@@ -2943,10 +2963,15 @@ public U32 class CColorROPU32
 #define COLORROP_COLORS_MASK	0x00FF00FF
 #define COLORROP_NO_ROP0_MASK	0xFFFF00FF
 #define COLORROP_BITS		16
+
+// Brook is this the same as CColor32?
+/*
 public U32 class CBGR24
 {
   U8	b,g,r,pad;
 };
+*/
+// Brook 16 Color Pallate control
 public I64 class CBGR48
 {
   U16	b,g,r,pad;
@@ -3456,8 +3481,8 @@ public class CSysFixedArea
 #define CH_SHIFT_SPACE	0x1F
 #define CH_SPACE	0x20
 
-#define ST_ERR_ST   "$$LTRED$$$$BK,1$$ERROR:$$FG$$$$BK,0$$ "
-#define ST_WARN_ST  "$$RED$$$$BK,1$$WARNING:$$FG$$$$BK,0$$ "
+#define ST_ERR_ST   "$$LTPURPLE$$ERROR:$$FG$$ "
+#define ST_WARN_ST  "$$LTRED$$WARNING:$$FG$$ "
 
 //Scan code flags
 #define SCf_E0_PREFIX	7
@@ -3541,19 +3566,30 @@ public class CSysFixedArea
 public class CTextGlbls
 {
   I64	raw_col,raw_flags;
+  // Brook not used in kernel
   U8	*raw_scrn_image;
   I64	rows,cols;		//Use TEXT_ROWS,TEXT_COLS
   U64	*font,*aux_font;
-  U8	*vga_alias,*vga_text_alias;
+//  U64	*vga_alias_old_;
+  // Brook not used in kernel
+  U64	*vga_alias;
+
+  U8    *vga_text_alias;
   U8	border_chars[16];
 };
 
 #define FONT_WIDTH	8
 #define FONT_HEIGHT	8
 
-#help_index "Graphics"
-#define GR_WIDTH	640
-#define GR_HEIGHT	480
+//#help_index "Graphics"
+
+
+#define GR_WIDTH_OLD_	640
+#define GR_HEIGHT_OLD_	480
+//#define GR_WIDTH	640
+//#define GR_HEIGHT	480
+
+// @see vesainfo
 
 //z-vals less than zero are in front of scrn and not drawn.
 //we want to shift all Z-vals into a drawable range.
@@ -3596,6 +3632,8 @@ class CGrSym
   I64	snx,sny,snz;
 };
 
+
+// Brook Needs work
 public class CDC
 {
   U0	start;
@@ -3636,7 +3674,7 @@ public class CDC
 
   //Can be changed from the default $LK,"DCLighting",A="MN:DCLighting"$()
   U0	(*lighting)(CDC *dc,CD3I32 *p1,CD3I32 *p2,
-	CD3I32 *p3,CColorROPU32 color);
+	CD3I32 *p3,U32 color);
 
   //Set by $LK,"DCSymmetrySet",A="MN:DCSymmetrySet"$() or $LK,"DCSymmetry3Set",A="MN:DCSymmetry3Set"$()
   CGrSym sym;
@@ -3651,16 +3689,19 @@ public class CDC
   CTask	*mem_task,*win_task;
   CDC	*alias;
   U8	*body;
+  U64   dirtyRct; // changed area 
+  Bool  updated; // changed
 
   //Set by $LK,"DCDepthBufAlloc",A="MN:DCDepthBufAlloc"$()
   I32	*depth_buf;
   I64	db_z; //private
-#assert !($$&7)
+#assert !($$&8)
 };
+
 
 #help_index "Devices"
 //VGA Memory
-#define VGAM_GRAPHICS	0xA0000
+//#define VGAM_GRAPHICS	0xA0000
 #define VGAM_TEXT	0xB8000
 
 //VGA I/O ports
@@ -3903,5 +3944,298 @@ public class CInsReg
   I64	machine_num	format
 			"$$DA-TRM,A=\"This Machine Num (Choose Any):%d\"$$\n";
 };
+
+
+
+#help_index "Graphics/VESA"
+public class CVesaInfo
+{
+  U16 attributes;
+  U8 window_a;
+  U8 window_b;
+  U16 granularity;
+  U16 window_size;
+  U16 segment_a;
+  U16 segment_b;
+  U32 win_func_ptr;
+  U16 pitch;  // bytes per row
+  U16 width;  
+  U16 height;
+  U8  w_char, ychar, planes, bpp, banks, memory_model, bank_size;
+  U8  image_pages, reserved0, red_mask, red_position, green_mask;
+  U8  green_position, blue_mask, blue_position, reserved_mask;
+  U8  reserved_position, direct_color_atributes;
+  U32 framebuffer; // physical address of the LFB
+
+  U32 off_screen_mem_off;
+  U16 off_screen_mem_size;
+  U8 reserved1[206];
+  // our additions
+//  U64 offscreenbuffer;
+  U16 return_code;
+  U16 mode; 
+  U64 bufferSize; // = vesa_info.width*vesa_info.height*(bpp>>3);
+};
+
+
+#help_index "Graphics/VBE2"
+public class CVBE2Info
+{
+  U8 signature[4];
+  U16 version;
+  U32 oem;
+  U32 capabilities;
+  U32 video_modes;
+  U16 video_memory;
+  U16 software_rev;
+  U32 vender; 
+  U32 product_name;
+  U32 product_rev;
+  U8 reservered[222];
+  U8 oem_data[256];
+  // our additions
+  U16 return_code;
+  U16 requested_mode;
+
+};
+
+/*
+public class CGr32Scrn
+{// Describes a logical screen
+  U16 width, height;
+  U32 *buffer;
+  U64 size; // width*height;
+  U64 bufferSize; // = width*height*4;
+
+  // Updated bounds
+  Bool updated;
+  U64 minx, miny, maxx, maxy;
+
+};
+*/
+public class CVesaModes
+{// supported graphics modes
+  U16 modes[50];
+};
+/*
+public class CWindow24
+{
+  CGr32Scrn canvas;
+  CGr32Scrn *dst; // probably the screen
+  I64 x, y;
+  U64 w, h, canvasX, canvasY;  // the window is bigger than the canvas
+  U8 *title;
+  Bool visible;
+};
+*/
+
+
+#define CLEAR32   0xFF000000
+// Bits 1-2 shading = values deccrements of 32?
+#define SHADING32 0x0F000000
+// Bits 3-4 highlighting = 4 values increments of 32
+#define SHADING32 0x0F000000
+// Bits 5-7 blneding/merge -so the color bits will also ne set
+#define BLEND32   0xF0000000
+
+
+
+
+#define BLACK32    0x000000
+#define BLUE32     0x000088
+#define GREEN32    0x008800
+
+//$SY,-3$#define CYAN32     0x00FFFF
+#define CYAN32     0x00AAAA
+
+#define RED32      0xAA4444
+#define PURPLE32   0x4B0082
+#define BROWN32    0xA52A2A
+#define LTGREY32   0xAAAAAA
+
+#define DKGREY32   0x444444
+#define LTBLUE32   0x4169E1
+#define LTGREEN32  0xADFF2F
+#define LTCYAN32   0x00FFFF
+
+#define LTRED32    0xFF8888
+#define LTPURPLE32 0x9932CC
+#define YELLOW32   0x00FFFF
+#define WHITE32    0xFFFFFF
+
+
+#define CHARCOAL32 0x111111
+#define DPOCEAN32  0x001122
+
+#define WIN_BORDER      WHITE32 
+#define WIN_PANEL       0x222266
+#define WIN_BACK        CHARCOAL32
+#define WIN_FG          0xEEEEEE
+#define WIN_TITLE_COLOR WHITE32
+#define SYS_BACK        DPOCEAN32
+
+
+#define XF_TRANSP  0b11000000000000000000000000000000 // transperent top 2 bits 0xC0000000
+#define XF_SHADE   0b10000000000000000000000000000000 // top bit
+#define XF_BLEND   0b01000000000000000000000000000000
+
+#define XF_LIGHT   0b00100000000000000000000000000000  // lighten / darken
+#define XF_SOURCE  0b00010000000000000000000000000000  // FG or bG
+#define XF_VALUE   0b00001111000000000000000000000000  // shade/blend weighting
+
+
+/*
+
+The Definition of some Gr32 obects
+
+*/
+
+class CSize {
+// Basic description of a screen item size width + height
+// U32 means it all fits nicely into an I64
+  U32 w, h;
+};
+
+
+public class CRect {
+// Basic description of a screen rectangle
+// U16 means it all fits nicely into an I64
+  U16 x1, x2, y1, y2;
+};
+
+
+public class CPoint {
+// Basic description of a screen location
+// U32 means it all fits nicely into an I64
+  U32 x, y;
+};
+
+
+// Brook CCanvas needs a cliprect
+public class CCanvas {
+// Describes a logical screen
+  I16 width, height;
+  U32 *buffer;
+  I64 size; // width*height;
+  I64 bufferSize; // = width*height*4;
+
+  I64 rct;  // canvas bounds
+
+  // Updated bounds
+  Bool updated; // Dirty flag
+  I64 dirtyRct;  // Maybe a list
+  // Clip area - currently unused
+  Bool clipped; // has a clip rect
+
+  // Brook rename
+  I64 clipRct;
+  
+  Bool ownsBuffer;
+
+  U0 (*setPixel)(CCanvas *this, I64 x, I64 y, U32 color);
+  U0 (*printFont)(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg);
+  U0 (*printString)(CCanvas *this, U8 *str, I64 x, I64 y, U32 fg, U32 bg);
+  U0 (*fillrect)(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2, U32 color);
+  U0 (*line)(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2, U32 color);
+  U0 (*copyFrom)(CCanvas *this, I64 x, I64 y, CCanvas *src);
+  U0 (*copyRegion)(CCanvas *this, I64 x, I64 y, CCanvas *src, I64 x1, I64 y1, I64 x2, I64 y2);
+  U0 (*update)(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2);
+  U0 (*cleaned)(CCanvas *this);
+  U0 (*pushUpdates)(CCanvas *this, CCanvas *dst, I64 x, I64 y); 
+  U0 (*free)(CCanvas *this);
+  U0 (*printAsmFont)(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg);
+  U0 (*UpdateScrnRegion)(I64 crect);
+};
+
+
+public class CList {
+  I64 length; // number of items
+  I64 size_; // allocated memory size;
+  I64 *items; // list contents
+  
+  I64 growBy_;
+
+  U0 (*add)(CList *this, I64 entry);
+  U0 (*removeItem)(CList *this, I64 entry);
+  U0 (*remove)(CList *this, I64 index);
+  I64 (*get)(CList *this, I64 index);
+  Bool (*contains)(CList *this, I64 entry);
+  U0 (*grow)(CList *this, I64 growBy);  // increase the size by x
+  U0 (*shrink)(CList *this); // compact if you suspect the allocated space is bigger than required
+  U0 (*clear)(CList *this);
+  U0 (*free)(CList *this);
+  U0 (*foreach)(CList *this, I64 (*callback)(I64 index, I64 entry)); // foreach with call back per item
+};
+
+
+#define LIST_INITIAL_SIZE 16
+#define LIST_GROWBY_SIZE 16    // not a perfect science
+
+
+
+
+public class CWindow 
+{
+  CCanvas *canvas;
+  CCanvas *dst; // where this ends up going
+  // Brook parent win manager (dialogs?, sub windows)
+  I64 x, y;
+  U64 w, h, canvasX, canvasY;  // the window is bigger than the canvas
+  U8 *title;
+  Bool visible;
+  Bool hasFrame;
+
+  CList *contents;
+
+  I64 parent; // place holder for parent - or message que
+
+  // manage content
+  // add, remove....
+
+  // actions
+  U0 (*redraw)(CWindow this);
+  U0 (*show)(CWindow this);
+  U0 (*hide)(CWindow this);
+  U0 (*move)(CWindow this, I64 x, I64 y);
+  U0 (*pushChanges)(CWindow this);
+  U0 (*pushCanvas)(CWindow this);
+  U0 (*push)(CWindow this);
+//  U0 (*pushCanvasRegion_)(CWindow *this, U64 x1, U64 y1, U64 x2, U64 y2);
+  U0 (*free)(CWindow this);
+  U0 (*pullContent)(CWindow this);
+  // Events  
+  // selected, close, move, redraw, keyevents, mouse, timer, callbacks, sync....
+  // Brook build a message que
+};
+
+
+// Brook this class is nowhere near complete
+
+public class CContent {
+  Bool visible;
+  Bool updated; // managed cleared after draw
+
+  I64 x, y;
+  I64 w, h;
+
+  I64 type; // good for introspection
+  CWindow *parent;
+
+  // Brook does this need a clip rect?
+  
+//  U0 (*draw)(CContent *this); // 
+  U0 (*update)(CContent *this);
+  U0 (*cleared)(CContent *this);
+  U0 (*free)(CContent *this); // 
+  U0 (*draw)(CContent *this, I64 x, I64 y); // 
+  U0 (*redraw)(CContent *this, I64 x, I64 y); // 
+
+};
+
+public class CContentText:CContent {
+  U8 *string;  // rudimentary
+  U32 bg, fg;
+};
+
 
 #help_index ""

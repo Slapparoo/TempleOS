@@ -1,3 +1,8 @@
+
+//U16 GR_WIDTH = vesa_info.width;
+//U16 GR_HEIGHT = vesa_info.width;
+
+
 U0 SysGlblsInit()
 {
   I64 i,j;
@@ -66,23 +71,32 @@ U0 SysGrInit()
 {
   text.font=sys_font_std;
   text.aux_font=sys_font_cyrillic;
-  text.vga_alias	=dev.uncached_alias+VGAM_GRAPHICS;
-  text.vga_text_alias	=dev.uncached_alias+VGAM_TEXT;
+
+//  if (Bt(&sys_run_level,RLf_24BIT_GRP)) { //if text mode
+
   if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
+    text.vga_text_alias	=dev.uncached_alias+VGAM_TEXT;
     text.cols=80;
     text.rows=25;
     MemSet(text.vga_text_alias,0,text.rows*text.cols<<1);
     text.border_chars[2] (I64)='ÄÍ³ºÚÉ¿»';
     text.border_chars[10](U32)='ÀÈÙ¼';
-  } else { //if 640x480 16 color
-    text.cols=GR_WIDTH/FONT_WIDTH;
-    text.rows=GR_HEIGHT/FONT_HEIGHT;
-    OutU8(VGAP_IDX,VGAR_MAP_MASK);
-    OutU8(VGAP_DATA,0x0F);
-    MemSet(text.vga_alias,0,GR_WIDTH*GR_HEIGHT>>3);
-    text.raw_scrn_image=CAlloc(GR_WIDTH*GR_HEIGHT/8);
-    text.border_chars[2] (I64)=0x0908070605040302;
-    text.border_chars[10](U32)=0x0D0C0B0A;
+  } else { //if Graphics mode
+    vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp>>3;
+    screen32 = CCanvasCreate(vesa_info.width, vesa_info.height, 0);
+    screen32_ = CCanvasCreate(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
+    screenBuffer = CCanvasCreate(vesa_info.width, vesa_info.height, 0);
+
+    MemSetU32(screen32_->buffer, WIN_BACK, screen32_->size);
+
+    text.cols=screen32_->width/FONT_WIDTH;
+    text.rows=screen32_->height/FONT_HEIGHT;
+  
+    text.vga_text_alias	=CAlloc((text.cols*text.rows)<<1);
+    text.vga_alias	=CAlloc((text.cols*text.rows*8));
+
+    text.border_chars[2] (I64)='ÄÍ³ºÚÉ¿»';
+    text.border_chars[10](U32)='ÀÈÙ¼';
   }
 }
 
@@ -157,7 +171,7 @@ U0 KMain()
   //Before this point use $LK,"Snd",A="MN:Snd"$() and $LK,"Busy",A="MN:Busy"$()
   //to debug.  After this point, use $LK,"RawPrint",A="MN:RawPrint"$()
   LBts(&sys_run_level,RLf_RAW);
-  "TempleOS EE V%5.4f\t%D %T\n\n",
+  "TempleOS Explorers Edition V%6f\t%D %T\n\n",
 	sys_os_version,sys_compile_time,sys_compile_time;
 
   TimersInit;

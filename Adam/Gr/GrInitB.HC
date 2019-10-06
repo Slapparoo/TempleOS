@@ -67,10 +67,14 @@ U0 GrSetUpTables()
 	if (((x-1)^(y-1))&1 && SqrI64(y*2-k)+SqrI64(x*2-k)<rr)
 	  GrPlot0(dc,x-1,y-1);
   }
-  if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
+  if (vesa_info.return_code == 0x4F) {
+    "Adam init Graphics32..";
+  } else if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
+    "Adam init Text..";
     MemSet(text.vga_text_alias,0,TEXT_ROWS*TEXT_COLS*sizeof(U16));
     MemSet(gr.vga_text_cache,0,TEXT_ROWS*TEXT_COLS*sizeof(U16));
   } else {
+    "Adam init Legacy Graphcs..";
     OutU8(VGAP_IDX,VGAR_MAP_MASK);
     OutU8(VGAP_DATA,0x0F);
 //Virtual Box crashes on the following for some reason.
@@ -97,6 +101,7 @@ U0 GrSetUpTables()
 
 U0 WinZBufFill(CTask *task)
 {//Not public
+  // brook win size?
   I64 y,t,b,l,r,w;
   if (!Bt(&task->display_flags,DISPLAYf_NO_BORDER)) {
     if (task->win_top-1>0)
@@ -204,6 +209,12 @@ U0 GrInit2()
   gr.scrn_image=DCNew(GR_WIDTH,GR_HEIGHT); //4-bit
   gr.zoomed_dc	 =DCNew(GR_WIDTH,GR_HEIGHT); //4-bit
   gr.zoomed_dc->flags|=DCF_SCRN_BITMAP;
+
+  gr.pxlsUpd = MAlloc(screen32->width*screen32->height>>4);
+  gr.lstPxlsUpd = MAlloc(screen32->width*screen32->height>>4);
+  
+  MemSetU8(gr.lstPxlsUpd, 0xFF, screen32->width*screen32->height>>4);
+
 }
 
 GrInit2;

@@ -6,3 +6,5 @@ extern U8 *SpriteQue2Sprite(CSprite *head,I64 *_size=NULL);
 extern CSprite *SpriteSetSettings(CDC *dc=NULL,CSprite *head,I64 elem_num,
 	I64 x=0,I64 y=0,CColorROPU32 *_color=NULL,I64 *_thick=NULL,
 	I64 *_xx=NULL,I64 *_yy=NULL);
+extern U0 GrPixelUpdatedByIdx(U64 xyOffset);
+extern U0 GrPixelUpdated(U64 x, U64 y);

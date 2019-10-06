@@ -346,6 +346,8 @@ public U0 TextBorder(CTask *task=NULL,
     TextChar(task,,l-1,i,text.border_chars[4+solid]+attr);
     TextChar(task,,r+1,i,text.border_chars[4+solid]+attr);
   }
+
+  // Brook add drop shadow
 }
 
 public U0 TextRect(I64 l,I64 r,I64 t,I64 b,I64 d)

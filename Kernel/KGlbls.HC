@@ -13,7 +13,7 @@ U8 *rev_bits_table, //Table with U8 bits revd
    *set_bits_table; //Table with count of set bits in a U8
 CDate local_time_offset;
 F64	*pow10_I64,
-	sys_os_version=5.040;
+	sys_os_version=6.00;
 
 CAutoCompleteDictGlbls acd;
 CAutoCompleteGlbls ac;
@@ -33,3 +33,10 @@ U8  *(*fp_getstr2)(I64 flags=0);
 U0 (*fp_update_ctrls)(CTask *task);
 CDoc *(*fp_doc_put)(CTask *task=NULL);
 U0 (*fp_set_std_palette)();
+
+U0 *(*printFonts_)(U32 reg RDI *dst, reg RCX I64 scrnWidth, reg RAX U32 fg, reg RBX U32 bg);
+CCanvas *screen32;
+CCanvas *screen32_;
+CCanvas *screenBuffer;
+
+public U64 CDC_UPD_CNT1 = 0;

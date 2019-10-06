@@ -11,6 +11,8 @@ Option(0,0); //(0,0)=EchoOff   (0,1)=EchoOn
 #include "/Kernel/KernelC.HH"
 #include "/Compiler/CompilerB.HH"
 
+
+
 Option(OPTf_WARN_PAREN,ON);
 Option(OPTf_WARN_DUP_TYPES,ON);
 HashTablePurge(adam_task->hash_table);
@@ -28,7 +30,7 @@ LBts(&Fs->display_flags,DISPLAYf_CHILDREN_NOT_ON_TOP);
 LBts(&Fs->display_flags,DISPLAYf_SHOW);
 RegInit;
 LBts(&sys_run_level,RLf_REGISTRY);
-if (!ins_reg.registered)
+if (!ins_reg.registered)
   InsUnreg;
 
 WallPaperInit;

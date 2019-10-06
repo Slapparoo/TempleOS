@@ -15,7 +15,7 @@ U0 MakeAll()
     throw;
 }
 
-public U0 BootHDIns(U8 drv_let=0)
+public U0 BootHDIns(U8 drv_let=0)
 {//$LK,"MakeAll",A="MN:MakeAll"$ and install new boot-loader.
   CDrv *dv;
   CFAT32Boot br;

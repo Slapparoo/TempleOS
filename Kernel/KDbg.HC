@@ -7,8 +7,8 @@ Bool ChkPtr(U8 *ptr)
       return FALSE;
   } else if (ptr<mem_boot_base)
     return FALSE;
-  else if (ptr<VGAM_GRAPHICS)
-    return TRUE;
+//  else if (ptr<VGAM_GRAPHICS)
+//    return TRUE;
   else
     return FALSE;
 }
@@ -22,8 +22,8 @@ Bool ChkCodePtr(U8 *ptr)
       return FALSE;
   } else if (ptr<mem_boot_base)
     return FALSE;
-  else if (ptr<VGAM_GRAPHICS)
-    return TRUE;
+//  else if (ptr<VGAM_GRAPHICS)
+//    return TRUE;
   else
     return FALSE;
 }
@@ -290,6 +290,10 @@ I64 *TaskRegAddr(CTask *task,I64 reg_num)
 
 U0 RawDr(CTask *task=NULL)
 {
+
+/*
+
+// Brook Couldn't find the switch
   I64 i,j,old_col=text.raw_col;
   Bool old_raw=Raw(ON);
   U8 buf[200];
@@ -323,6 +327,7 @@ U0 RawDr(CTask *task=NULL)
 
   text.raw_col=old_col;
   Raw(old_raw);
+*/
 }
 
 U0 Dr(CTask *task=NULL)

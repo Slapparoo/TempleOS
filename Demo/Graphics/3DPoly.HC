@@ -107,11 +107,14 @@ U0 Main()
       è+=1.1*ã/180.0;
       ê+=0.5*ã/180.0;
     }
+    Copy4BitToScreen(dc);
   } catch
     PutExcept;
-
+  
   DCFill;
+    Copy4BitToScreen(dc);
   DCDel(dc);
+  
 }
 
 Main;

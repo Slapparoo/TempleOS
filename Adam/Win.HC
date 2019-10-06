@@ -180,9 +180,27 @@ U0 DrawMs(CDC *dc)
   y=ms.pos.y;
   POPFD
   if (ms.show && ms_hard.installed) {
-    if (!Bt(&sys_run_level,RLf_VGA)) //if text mode
+//    if (vesa_info.return_code == 0x4F) {
+//      gr.text_base[ms.pos_text.x+ms.pos_text.y*TEXT_COLS]^=0x7F00;
+/*      if (gr.fp_draw_ms) {
+	if (ms.lb)
+	  dc->color=ROP_XOR+LTPURPLE^TRANSPARENT;
+	else if (ms.rb)
+	  dc->color=ROP_XOR+LTCYAN^TRANSPARENT;
+	else
+	  dc->color=ROP_XOR+BLACK^TRANSPARENT;
+	if (winmgr.grab_scroll && gr.fp_draw_grab_ms)
+	  (*gr.fp_draw_grab_ms)(dc,x,y,winmgr.grab_scroll_closed);
+	else
+	  (*gr.fp_draw_ms)(dc,x,y);
+      }
+*/
+
+
+//    } else 
+    if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
       gr.text_base[ms.pos_text.x+ms.pos_text.y*TEXT_COLS]^=0x7F00;
-    else {
+    } else {
       if (gr.fp_draw_ms) {
 	if (ms.lb)
 	  dc->color=ROP_XOR+LTPURPLE^TRANSPARENT;
@@ -525,14 +543,14 @@ public Bool WinBorder(Bool val=OFF,CTask *task=NULL)
   if (val) {
     if (!old_has_border) {
       LBtr(&task->display_flags,DISPLAYf_NO_BORDER);
-      task->win_left++; task->win_right--;
+     // task->win_left++; task->win_right--;
       task->win_top++;	task->win_bottom--;
       TaskDerivedValsUpdate(task,FALSE);
     }
   } else {
     if (old_has_border) {
       LBts(&task->display_flags,DISPLAYf_NO_BORDER);
-      task->win_left--; task->win_right++;
+     // task->win_left--; task->win_right++;
       task->win_top--;	task->win_bottom++;
       TaskDerivedValsUpdate(task,FALSE);
     }

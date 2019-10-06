@@ -102,7 +102,7 @@ Bool YorN()
 
 I64 PressAKey()
 {//Print "Press a key" and wait for non-zero $LK,"ASCII",A="MN:CH_CTRLA"$ key.
-  "$$BK,1$$PRESS A KEY$$BK,0$$\n";
+  "PRESS A KEY\n";
   return GetChar(,FALSE);
 }
 

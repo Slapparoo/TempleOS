@@ -21,11 +21,19 @@ U0 GrUpdateTaskWin(CTask *task)
   CD3I64 saved_scroll;
   sys_task_being_scrn_updated=task;
   try {
-    if (!Bt(&task->display_flags,DISPLAYf_NO_BORDER))
+
+    // Brook Win frame
+    if (!Bt(&task->display_flags,DISPLAYf_NO_BORDER)) {
+
       TextBorder(Fs,task->win_left,task->win_right,task->win_top,
 	    task->win_bottom,task->border_attr,task==sys_focus_task);
+    }
+
+
     TextRect(task->win_left,task->win_right,
 	  task->win_top,task->win_bottom,task->text_attr<<8);
+    
+
     if (task==sys_winmgr_task) {
       if (gr.fp_wall_paper)
 	(*gr.fp_wall_paper)(task);
@@ -165,9 +173,16 @@ U0 GrZoomInScrn()
 
 U0 GrUpdateTextBG()
 {
-  I64 reg RSI *dst=gr.dc2->body,reg R13 c,row,col,
-	num_rows=TEXT_ROWS,num_cols=TEXT_COLS,i,j,cur_ch,
-	reg R12 w1=gr.dc2->width_internal,w2=-7*w1+8,w3=7*w1,w4=0;
+  // Brook Are these hints to use regs for the vars?
+  I64 reg RSI *dst=gr.dc2->body,
+      reg R13 c,row,col,
+      num_rows=TEXT_ROWS,
+      num_cols=TEXT_COLS,
+      i,j,cur_ch,
+      reg R12 w1=gr.dc2->width_internal,
+      w2=-7*w1+8,
+      w3=7*w1,
+      w4=0;
   U32 *src=gr.text_base;
   Bool blink_flag=Blink;
   U8 *dst2=dst;
@@ -254,10 +269,14 @@ U0 GrUpdateTextBG()
 
 U0 GrUpdateTextFG()
 {//See $LK,"TextBase Layer",A="HI:TextBase Layer"$.
+
   U32 *src=gr.text_base;
-  I64 i,j,cur_ch,*dst=gr.dc2->body,
-	w1=gr.dc2->width_internal,w2=7*w1,w4=0,
-	num_rows=TEXT_ROWS,num_cols=TEXT_COLS,row,col;
+  I64 i,j,cur_ch,
+    *dst=gr.dc2->body,
+    w1=gr.dc2->width_internal,
+    w2=7*w1,w4=0,
+    num_rows=TEXT_ROWS,
+    num_cols=TEXT_COLS,row,col;
   U8 *dst_start=gr.dc2->body,*dst_end=dst_start+w1*gr.dc2->height-7*w1-8;
   Bool blink_flag=Blink;
 
@@ -301,11 +320,11 @@ U0 GrUpdateTextFG()
 	if (i&0x10) i|=~0x1F;
 	i=w1*i+j;
 	if (dst_start<=dst(U8 *)+i<dst_end)
-//	  GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst(U8 *)+i,w1);
-	  GrRopEquU8NoClipping(cur_ch&(0xFFF),dst(U8 *)+i,w1);
+// remove underline	  GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst(U8 *)+i,w1);
+	  GrRopEquU8NoClipping(cur_ch&0xFFF,dst(U8 *)+i,w1);
       } else
-//	GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst,w1);
-	GrRopEquU8NoClipping(cur_ch&(0xFFF),dst,w1);
+	GrRopEquU8NoClipping(cur_ch&0xFFF,dst,w1);
+// remove underline	GrRopEquU8NoClipping(cur_ch&(ATTRF_UNDERLINE+0xFFF),dst,w1);
       dst(U8 *)+=8;
     }
     src+=w4;
@@ -313,14 +332,19 @@ U0 GrUpdateTextFG()
   }
 }
 
+// dest, src
+// Brook can this go (include in UpdateGraphics32)
 U0 DCBlotColor8(CDC *dc,CDC *img)
 {
-  U8  *src=img->body,*b0=dc->body;
-  I64 j,k,d0=img->width_internal*img->height;
-  for (k=0;k<d0;k++) {
-    j=*src++;
-    if (j!=TRANSPARENT)
-      *b0++=j;
+  U8  *src=img->body,
+      *b0=dc->body;
+  I64 j,
+      k,
+     d0=img->width_internal*img->height;
+  for (k = 0; k < d0; k++) {
+    j = *src++;
+    if (j != TRANSPARENT)
+      *b0++ = j;
     else
       b0++;
   }
@@ -365,8 +389,299 @@ U0 GrUpdateTextModeText()
   }
 }
 
+//U8 *screenCache;
+
+
+public U32 pal[16] = 
+    {BLACK32, BLUE32,    GREEN32,  CYAN32,
+     0x002288,PURPLE32,  BROWN32,  LTGREY32,
+     DKGREY32,LTBLUE32,  LTGREEN32,LTCYAN32,
+     LTRED32, LTPURPLE32,YELLOW32, WHITE32};
+
+
+U0 GrUpdateGr32ModeText()
+{
+  Bool blink_flag=Blink;
+// works as expected
+// Brook update text only mode
+  I64 cur_ch,
+    yy=0,
+    xx=0,
+    x=0, 
+    y=0;
+  U32 *src=gr.text_base, fg2, bg2;
+  U8 fg, bg;
+  U16 *dst2=gr.vga_text_cache;
+  U32 updCnt = 0;
+
+  if (LBtr(&sys_semas[SEMA_FLUSH_VGA_IMAGE],0)) {
+    for (y=0;y < TEXT_ROWS;y++) {
+      yy = y<<3;
+      for (x=0;x < TEXT_COLS;x++) {
+        cur_ch=*src++;
+        if (cur_ch & ATTRF_SEL)
+          cur_ch.u8[1]=cur_ch.u8[1]^0xFF;
+        if (cur_ch & ATTRF_INVERT)
+	  cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
+        if (cur_ch & ATTRF_BLINK)
+	  if (blink_flag)
+	    cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
+        // Writen as U16 u8[0] = chr, u8[1] = color bg:fg
+
+        fg=(cur_ch & 0x0F00)>>8;
+        bg=(cur_ch & 0xF000)>>12; 
+
+        fg2 = pal[fg];
+        bg2 = pal[bg];
+
+        screen32->printAsmFont(screen32, cur_ch&0xFF, x<<3, yy, fg2, bg2);
+        *dst2++=cur_ch;
+      }
+    }
+    MemCpyU32(screen32_->buffer, screen32->buffer, screen32->bufferSize>>2);
+
+//    screen32->pushUpdates(screen32, screen32_, 0, 0);
+  } else {
+    for (y=0;y < TEXT_ROWS;y++) {
+      yy = y<<3;
+      for (x=0;x < TEXT_COLS;x++) {
+
+        cur_ch=*src++;
+        if (cur_ch & ATTRF_SEL)
+          cur_ch.u8[1]=cur_ch.u8[1]^0xFF;
+        if (cur_ch & ATTRF_INVERT)
+	  cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
+        if (cur_ch & ATTRF_BLINK)
+	  if (blink_flag)
+	    cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
+        if (*dst2&0xFFFF !=cur_ch&0xFFFF) {
+          fg=(cur_ch & 0x0F00)>>8;
+          bg=(cur_ch & 0xF000)>>12; 
+
+          fg2 = pal[fg];
+          bg2 = pal[bg];
+
+          xx=x<<3;
+          screen32->printAsmFont(screen32, cur_ch&0xFF, xx, yy, fg2, bg2);
+          screen32->pushUpdates(screen32, screen32_, 0, 0);
+
+          *dst2++=cur_ch&0xFFFF;
+          updCnt++;
+        } else {
+	  dst2++;
+        }
+      }
+    }
+/*    if (gr.dc2->updated) {
+       screen32_->printAsmFont(screen32_, '2', 900, 50, 0x4444FF, 0xFF8888);
+       CDC_cleaned(gr.dc2);
+    }
+    if (gr.dc->updated) {
+       screen32_->printAsmFont(screen32_, 'U', 908, 50, 0x4444FF, 0xFF8888);
+       CDC_cleaned(gr.dc);
+    }
+    if (gr.dc1->updated) {
+       screen32_->printAsmFont(screen32_, '1', 916, 50, 0x4444FF, 0xFF8888);
+       CDC_cleaned(gr.dc1);
+    }
+*/
+  }
+
+}
+
+U0 GrClearDC() {
+  CDC *dc=gr.dc2; // GrUpdateGraphics32
+  U64 len = dc->height*dc->width_internal;
+  U8 *src =dc->body;
+  U64 size=src+len; 
+  
+  for (; src < size; src++) {
+    *src=0;
+  }
+}
+
+/*
+U0 GrUpdateGraphics32(U64){
+  //Copy the 4bit screen to the 32bit display screen
+  // fudging it;
+
+  U32 *dst = screen32_->buffer, *dst2 = screen32->buffer, c;
+  CDC *dc=gr.dc2; // GrUpdateGraphics32
+  U64 len = dc->height*dc->width_internal;
+  U8 *src =dc->body, *cch = screenCache, j;
+  
+  U64 size=src+len; 
+
+  for (src=dc->body; src < size; src++, dst++, cch++, dst2++) {
+    j = *src;
+    if (j != *cch) {
+      c = pal[j&0xF];
+      *dst = c;
+      *dst2 = c;
+      *cch = j;
+    }
+  }
+}
+*/
+
+/*
+
+public U64 GR_UP_CNT1 = 0;
+public U64 GR_UP_CNT2 = 0; 
+public U64 GR_UP_CNT3 = 0; 
+
+public U0 GrPixelUpdatedByIdx(U64 xyOffset) {
+// this is the Screen based index, not the updates bitmap based index
+// this should just be a call to BEqu
+
+  U64 qofs = (xyOffset)>>7;
+  U64 bofs = (xyOffset)>>1&0b111111;
+
+
+//  "x=%d, y=%d, qofs=%d bofs=%d bMap=%b\n", x, y, qofs, bofs, 1<<bofs;
+
+//  U64 bMap = *gr.pxlsUpd[qofs];
+//  bMap |= 1<<bofs;
+
+  gr.pxlsUpd[qofs] |= 1<<bofs;
+  GR_UP_CNT1++; 
+}
+
+
+public U0 GrPixelUpdatedRect(U64 crect) {
+  CRect *r = &crect;  
+  U64 x, y, yy;
+  //  inefficient
+  for (y = r->y1; y < r->y2; y++) {
+    yy = y * screen32->width;
+    for (x = r->x1; x < r->x2; x++) {
+      GrPixelUpdatedByIdx(yy + x);
+    }
+  }
+  GR_UP_CNT2++; 
+}
+
+
+
+public U0 GrPixelUpdated(U64 x, U64 y) {
+  GrPixelUpdatedByIdx(y * screen32->width + x);
+  GR_UP_CNT3++; 
+}
+*/
+/*
+Calculate the pixels which have changed
+*/
+public U0 GrCalcScrnUpdates(U64 a=0) {
+  // compare the previous screen to the current screen
+  U16 *scrn = gr.dc2->body, *lstScrn = screenCache;
+  U64 difsSize = screen32->width*screen32->height>>1, i;
+  U64 *src = screen32->buffer, *dst = screen32_->buffer;
+
+  for (i = 0; i < difsSize; i++, dst++, src++) {
+    if (*scrn++ != *lstScrn++) {
+      *dst = *src;
+    }
+  }
+  MemCpyU64(screenCache, gr.dc2->body, difsSize>>2);
+}
+
+/*
+
+Transfer just the changes to the Video Buffer (LFB)
+*/
+/*
+public U0 GrUpdateChanged(U64 a=0) {
+  U64 difsSize = screen32->width*screen32->height>>7;
+  U64 i = 0, ix, bt;
+  U64 *src = screen32->buffer, *dst = screen32_->buffer;
+
+  for (;i < difsSize; i++) {
+    U64 changes = gr.pxlsUpd[i] | gr.lstPxlsUpd[i];
+
+    if (changes) {
+      for (ix = 0; ix < 64; ix++, dst++, src++) {
+        bt = 1<<ix;
+        if (changes&bt) {
+          *dst = *src;
+        }
+      }
+
+    } else {
+      src += 64;
+      dst += 64;
+    }
+  }
+
+  src = gr.lstPxlsUpd;
+  gr.lstPxlsUpd = gr.pxlsUpd;
+  gr.pxlsUpd = src;
+  MemSetI64(src, 0, difsSize);
+}
+*/
+
+U0 GrCopyScreenBuffer(U64 a = 0) {
+//  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
+/*   U64 reg RDI *dst = screen32_->buffer;
+   U64 reg RSI *src = screen32->buffer;
+   U64 reg RCX *cnt = screen32->bufferSize>>6;
+   asm {
+     @@05:
+        MOV R8,[RSI] 
+        MOV R9,[RSI+8] 
+        MOV R10,[RSI+16] 
+        MOV R11,[RSI+24] 
+        MOV R12,[RSI+32] 
+        MOV R13,[RSI+40] 
+        MOV R14,[RSI+48] 
+        MOV R15,[RSI+56]
+
+        MOV [RDI], R8 
+        MOV [RDI+8], R9 
+        MOV [RDI+16], R10 
+        MOV [RDI+24], R11 
+        MOV [RDI+32], R12 
+        MOV [RDI+40], R13 
+        MOV [RDI+48], R14 
+        MOV [RDI+56], R15
+
+        ADD RSI, 64
+        ADD RDI, 64
+        DEC RCX
+        JNZ @@05
+   }
+*/
+//   GrCalcScrnUpdates;
+//   GrUpdateChanged; 
+}
+
+
+
+U0 GrFullScreenDraw32(U64 x=0){
+  //Copy the 4bit screen to the 32bit display screen
+  // fudging it;
+
+  U32 *dst = screen32->buffer;
+  CDC *dc=gr.dc2; // GrUpdateGraphics32
+  U64 len = dc->height*dc->width_internal;
+  U8 *src =dc->body, j;
+  
+  U64 size=src+len; 
+
+  for (src=dc->body; src < size; src++, dst++) {
+    *dst = pal[*src&0xF];
+  }
+//  Spawn(&GrCopyScreenBuffer,,,mp_cnt-1);
+//  GrCopyScreenBuffer;
+//  LOCK 
+  GrCalcScrnUpdates;
+//  Spawn(&GrCalcScrnUpdates,,,mp_cnt-1);
+
+}
+
+
 U0 GrUpdateVGAGraphics()
 {//Update Graphic Card
+
   I64 row,plane,d=gr.zoomed_dc->width_internal>>6;
   U32 *src,*vga,*dst;
   if (gr.scrn_zoom==1)
@@ -397,29 +712,116 @@ U0 GrUpdateVGAGraphics()
   }
 }
 
-U0 GrUpdateScrn()
+I64 lastMouse = -1;
+
+U0 GrUpdateGr32Mouse() {
+
+  I64 x,y, thisMouse;
+  PUSHFD
+  CLI
+  x=ms.pos.x;
+  y=ms.pos.y + 8;  // ms.pos is being clipped
+  POPFD
+  if (ms.show && ms_hard.installed) {
+
+/*    if (ms.lb) {
+      dc->color=ROP_XOR+LTPURPLE^TRANSPARENT;
+    } else if (ms.rb) {
+      dc->color=ROP_XOR+LTCYAN^TRANSPARENT;
+    } else {
+      dc->color=ROP_XOR+BLACK^TRANSPARENT;
+    } 
+  
+*/
+    // pushLast area to pref mouse position
+       CRect *tm = &thisMouse; 
+
+
+       tm->x1 = x;
+       tm->y1 = y;
+       tm->x2 = x+8;
+       tm->y2 = y+8;
+
+       PUSHFD
+       CLI
+       if (lastMouse != -1) {
+         screen32_->UpdateScrnRegion(lastMouse);
+//         UpdateScrnRegion(lastMouse.u16[0], lastMouse.u16[1], lastMouse.u16[2], lastMouse.u16[3]);
+       }
+      
+       screen32_->printAsmFont(screen32_, 'þ', x, y, 0xFFFFFF, 0);
+ 
+
+//       PrintFont32(&screen_, 'þ', x, y, 0xFFFFFF, 0);
+       POPFD
+       
+       lastMouse = thisMouse;
+  }
+}
+
+U0 GrUpdateThread(U64 x = 0) {
+  DCBlotColor4(gr.dc1->body,gr.dc2->body,gr.dc_cache->body,
+    gr.dc2->height*gr.dc2->width_internal>>3);
+//  GrUpdateGraphics32(0);
+  GrFullScreenDraw32;
+  
+//  GrUpdateGr32ModeText;
+//  GrUpdateGr32Mouse;
+}
+
+
+
+U0 GrUpdateScrn(U64 a=0)
 {//Called by the Window Manager $LK,"HERE",A="FF:::/Adam/WinMgr.HC,GrUpdateScrn"$, 30 times a second.
   CDC *dc;
-  if (!Bt(&sys_run_level,RLf_VGA)) //if text mode
+//  "GrUpdateScrn\n";
+
+  if (vesa_info.return_code == 0x4F) {
+    GrUpdateTextBG;
+    GrUpdateTextFG;
+//    GrClearDC;
     GrUpdateTasks;
-  else {
+    // dest, src
+    DCBlotColor8(gr.dc2,gr.dc);
+  } else if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
+    GrUpdateTasks;
+  } else {
     GrUpdateTextBG;
     GrUpdateTextFG;
     GrUpdateTasks;
+    // dest, src
     DCBlotColor8(gr.dc2,gr.dc);
   }
 
+  // Brook update to 32bit draw mouse etc
   dc=DCAlias(gr.dc2,Fs);
   dc->flags|=DCF_ON_TOP;
   if (gr.fp_final_scrn_update)
     (*gr.fp_final_scrn_update)(dc);
   DCDel(dc);
 
-  if (!Bt(&sys_run_level,RLf_VGA)) //if text mode
+  if (vesa_info.return_code == 0x4F) {
+    
+    DCBlotColor4(gr.dc1->body,gr.dc2->body,gr.dc_cache->body,
+	  gr.dc2->height*gr.dc2->width_internal>>3);
+
+    /*
+    GrUpdateGraphics32(0);
+
+    GrUpdateGr32ModeText;
+    GrUpdateGr32Mouse;
+    */
+//    Spawn(&GrUpdateThread,,,1);
+    GrUpdateThread;
+
+  } else if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode {
     GrUpdateTextModeText;
-  else {
+  } else {
+    // dc2.body contains an 8bit image  
+    // which I'm guesing gets converted to 4bit
     DCBlotColor4(gr.dc1->body,gr.dc2->body,gr.dc_cache->body,
 	  gr.dc2->height*gr.dc2->width_internal>>3);
     GrUpdateVGAGraphics;
   }
+  
 }

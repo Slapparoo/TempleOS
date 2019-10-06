@@ -302,7 +302,7 @@ U0 LexIncludeStr(CCmpCtrl *cc,U8 *abs_filename,U8 *src,Bool actual_file)
   tmpf->buf=tmpf->buf_ptr=tmpf->line_start=cc->cur_buf_ptr=src;
 }
 
-CDoc *LexDocRead(U8 *abs_filename,I64 flags)
+CDoc *LexDocRead(U8 *abs_filename,I64 flags)
 {
   CDoc *doc=DocNew(abs_filename);
   U8 *src;
@@ -698,7 +698,7 @@ lex_float_start:
 	  case KW_INCLUDE:
 	    if (Lex(cc)!=TK_STR)
 	      goto lex_end;
-	    fbuf=ExtDft(cc->cur_str,"HC.Z");
+	    fbuf=ExtDft(cc->cur_str,"HC");
 	    buf2=FileNameAbs(fbuf);
 	    Free(fbuf);
 	    if (Bt(&sys_run_level,RLf_DOC))
@@ -1043,7 +1043,7 @@ lex_ifjit:
 	    if (Lex(cc)!=TK_STR)
 	      goto lex_end;
 	    tmph=CAlloc(sizeof(CHashSrcSym));
-	    fbuf=ExtDft(cc->cur_str,"DD.Z");
+	    fbuf=ExtDft(cc->cur_str,"DD");
 	    tmph->str=FileNameAbs(fbuf);
 	    Free(fbuf);
 	    tmph->type=HTT_HELP_FILE|HTF_PUBLIC;

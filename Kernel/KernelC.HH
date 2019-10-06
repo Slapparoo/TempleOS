@@ -108,6 +108,12 @@ extern U8 *StrPrintHex(U8 *dst,I64 num;I64 width);
 #help_index "Char;Debugging/Raw Output;TextBase Layer/Char"
 public extern CTextGlbls text;
 
+#help_index "Graphics"
+public extern CCanvas *screen32;
+public extern CCanvas *screen32_;
+public extern CCanvas *screenBuffer;
+
+
 #help_index "Compiler/Lex"
 public extern U0 HashSrcFileSet(CCmpCtrl *cc,
 	CHashSrcSym *h,I64 line_num_offset=0);
@@ -223,7 +229,14 @@ public extern U0 RawDm(I64 mS=100,U8 *addr,I64 cnt=0x80);
 extern U0 RawDr(CTask *task=NULL);
 public extern U0 RawPrint(I64 mS=100,U8 *fmt,...);
 public extern U0 RawPutChar(I64 ch);
-public extern U0 VGAFlush();
+
+public extern U0 CDC_update(CDC *this, I64 crect);
+public extern U0 CDC_cleaned(CDC *this);
+public extern I64 CRect_join(I64 this, I64 that);
+public extern I64 CRectCreate(U16 x1, U16 y1, U16 x2, U16 y2);
+public extern U0 _CCanvas_tranformPixel(U32 *dst, U32 color);
+public extern I64 CRect_intersect(I64 this, I64 that);
+
 
 #help_index "Debugging;Debugging/Debugger"
 public extern U0 Dbg(U8 *msg=NULL,I64 msg_num=0);
@@ -604,6 +617,7 @@ public extern U0 QSort(U8 *base,I64 num, I64 width,
 public extern U0 QSortI64(I64 *base,I64 num,
 	I64 (*fp_compare)(I64 e1,I64 e2));
 public extern F64 sys_os_version;
+public extern U64 CDC_UPD_CNT1;
 
 #help_index "Misc/Progress Bars"
 public extern U0 ProgressBarsRst(U8 *path=NULL);
@@ -764,5 +778,14 @@ public extern F64 tS(); //From SysTimerFreq.
 
 #help_index "Windows"
 public extern Bool WinInside(I64 x,I64 y,CTask *task=NULL,I64 border=0);
+
+public extern U0 *(*printFonts_)(U32 reg RDI *dst, reg RCX I64 scrnWidth, reg RAX U32 fg, reg RBX U32 bg);
+
+public extern U32 pal4bit[16];
+public extern U0 Copy4BitToScreen(CDC *dc);
+public extern CCanvas *CCanvasCreate(I64 width, I64 height, U32 *buffer =0);
+public extern CWindow *CPanelCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
+public extern CWindow *CWindowCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
+
 
 #help_index ""

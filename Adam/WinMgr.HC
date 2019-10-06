@@ -312,6 +312,7 @@ I64 WinMgrSleep(Bool flush_msgs=FALSE)
   return msg_code;
 }
 
+//Brook Cursor pos
 CDoc *WinCursorPosSet(CTask *task,I64 msx,I64 msy,Bool set_cursor=TRUE)
 {
   CDoc *res=NULL;

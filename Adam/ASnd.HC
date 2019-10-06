@@ -230,7 +230,7 @@ The var music.stacatto_factor can
 be set to a range from 0.0 to 1.0.
 
 The var music.tempo is quarter-notes
-per second.  It defaults to
+per second.It defaults to
 2.5 and gets faster when bigger.
 */
   U8 *word,*last_st;

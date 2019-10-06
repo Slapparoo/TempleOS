@@ -51,6 +51,35 @@ GDT_TR_RING3:	DU8	MP_PROCESSORS_NUM*16 DUP(0);
 
 #assert $$-SYS_KERNEL==sizeof(CKernel)-sizeof(CBinFile)
 
+SYS_VESA::     DU8 256 DUP(0);
+SYS_VESA_RES:  DU16   0;   
+SYS_VESA_MODE: DU16   0;   
+SYS_VESA_BFSZ: DU64   0;
+#assert $$-SYS_VESA==sizeof(CVesaInfo)
+
+MODES_ARRY::    DU8 13400 DUP(0); // modes[50];
+
+SYS_VBE2::     
+SYS_VBE2_DATA1: DU8 14 DUP(0);
+SYS_VBE2_MODES: DU32;
+
+SYS_VBE2_DATA: DU8 498 DUP(0);
+SYS_VBE2_RES:  DU16   0;
+SYS_VBE2_MODE: DU16   0x4144; // <-- the the Graphics mode here
+
+// 640x480x32   = 0x4142
+// 800x600x32   = 0x4143
+// 1024x768x32  = 0x4144
+// 1280x1024x32 = 0x4145
+// 1860x1050x32 = 0x4160 // custom vbox
+
+#assert $$-SYS_VBE2==sizeof(CVBE2Info) // 516 
+
+// capute the supported modes
+VBE2_MODES:: DU16 50 DUP(0);     
+
+
+
 //************************************
 CORE0_16BIT_INIT::
 //EAX is $LK,"SYS_BOOT_SRC",A="FF:::/Kernel/KStart16.HC,[SYS_BOOT_SRC]"$. (Val passed from boot blk, $LK,"BootHD",A="FF:::/Adam/Opt/Boot/BootHD.HC,BOOT_SRC_HARDDRV"$, $LK,"BootDVD",A="FF:::/Adam/Opt/Boot/BootDVD.HC,BOOT_SRC_DVD"$, & $LK,"BootRAM",A="FF:::/Adam/Opt/Boot/BootRAM.HC,BOOT_SRC_RAM"$.)
@@ -77,14 +106,87 @@ GET_RIP:	POP	BX
 
 	MOV	U32 [SYS_RUN_LEVEL],RLF_16BIT
 
+// Get VBE2 info
+        PUSH    ES
+        PUSH    DS
+        POP     ES
+        MOV     AX,0x4F00
+        MOV     DI,SYS_VBE2
+                
+        INT     0x10
+         
+        POP     ES
+        MOV     [SYS_VBE2_RES],AX
+
+//****************
+// Fill the modes arry with supported modes
+        PUSH    ES
+        PUSH    DS
+        POP     ES
+        MOV     DI, MODES_ARRY
+        MOV     BX, 50
+        MOV     CX, 0x40FF
+// array of U16 support modes    
+@@06: // loop
+
+        INC     CX 
+        CMP     CX, 0x4300 // surely there are none past this?
+        JE      @@07
+
+        PUSH    CX
+        PUSH    BX
+        PUSH    DI
+
+        MOV     AX, 0x4F01
+        INT     0x10
+
+        POP     DI
+        POP     BX
+        POP     CX
+
+	CMP	AX,0x004F
+	JNE	@@06		// don't add to list
+
+        ADD     DI,256
+        MOV     [DI],AX
+        MOV     [DI+2],CX
+        ADD     DI,12
+
+        DEC     BX
+        JNZ     @@06
+@@07:
+// copy to an array of 50
+        POP     ES
+
+//********************
+
+// get Vesa info
+        PUSH    ES
+        PUSH    DS
+        POP     ES
+
+        MOV     CX, [SYS_VBE2_MODE]
+        MOV     [SYS_VESA_MODE], CX
+        MOV     AX, 0x4F01
+        MOV     DI, SYS_VESA
+        INT     0x10
+   
+        POP     ES
+
+        CMP     AX,0x004F
+
+// Set Mode
 	MOV	AX,0x4F02
-	MOV	BX,0x12		//640x480 16 color
+	MOV	BX,[SYS_VBE2_MODE]
+//	MOV	BX,0x12		//640x480 16 color
 #exe {
   if (!kernel_cfg->opts[CFG_TEXT_MODE])
     StreamPrint("INT 0x10");	//Enable VGA
 };
+        MOV     [SYS_VESA_RES], AX
 	CMP	AX,0x004F
 	JNE	@@10		//Jmp if fail
+	BTS	U32 [SYS_RUN_LEVEL],RLf_24BIT_GRP
 	BTS	U32 [SYS_RUN_LEVEL],RLf_VGA
 @@10:
 

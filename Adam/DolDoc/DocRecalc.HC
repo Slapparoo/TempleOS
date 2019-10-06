@@ -248,7 +248,11 @@ I64 DocTmpAttr(CDoc *doc,CDocEntry *doc_e,I64 cur_u8_attr)
   tmp_u32_attr|=doc_e->type&0xFFFF0000;
   if (doc_e==doc->cur_entry && !(doc->flags&DOCF_DONT_HIGHLIGHT_CURSOR) &&
 	doc_e->type_u8!=DOCT_TEXT)
+
+// Brook Highlights text in Dir etc
+{
     tmp_u32_attr^=0xFF00;
+}
   doc_e->settings.final_u32_attr=tmp_u32_attr;
   return tmp_u32_attr;
 }
@@ -980,8 +984,11 @@ rc_adjust_xy:
 	    if (tmp_u32_attr & DOCET_INVERT)
 	      i^=0xF;
 	    if (blink_flag &&
-		  (doc_e==doc->cur_entry || tmp_u32_attr&DOCET_BLINK))
+		  (doc_e==doc->cur_entry || tmp_u32_attr&DOCET_BLINK)) {
+
+// Brook Cursor
 	      i^=0xF;
+  }
 	  }
 	  dc->color=i;
 	  if (find_cursor)
@@ -1015,6 +1022,8 @@ rc_adjust_xy:
 	    dc->z=GR_Z_ALL;
 	    xx=0; yy=0; zz=0;
 	  }
+
+// Brook image in doc?
 	  Sprite3(dc,xx,yy,zz,bptr);
 	  dc->depth_buf=NULL;
 	  dc->flags&=~(DCF_LOCATE_NEAREST|DCF_DONT_DRAW|DCF_TRANSFORMATION);

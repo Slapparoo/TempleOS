@@ -7,6 +7,7 @@
 
 //Delete the rest from this file.
 
+
 U0 Tmp()
 {
   OnceExe;
@@ -40,14 +41,14 @@ U0 Tmp()
       "$$PURPLE$$$$TX+CX,\"Tip of the Day\"$$$$FG$$\n";
       TipOfDay;
       Type("::/Doc/Customize.DD");
-      if (FileFind("::/Misc/Tour")) {
-	"\nTake Tour";
-/*	if (YorN) {
-	  DocBottom;
-	  Cd("::/Misc/Tour");
-	  InFile("Tour");
-	}
-*/      }
+//      if (FileFind("::/Misc/Tour")) {
+//	"\nTake Tour";
+//	if (YorN) {
+//	  DocBottom;
+//	  Cd("::/Misc/Tour");
+//	  InFile("Tour");
+//	}
+//      }
       break;
   }
 }

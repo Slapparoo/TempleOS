@@ -10,6 +10,7 @@ U0 GrPaletteIndicesSet()
 // Set 16-colors to use first 16 DAC BGR entries, so we
 // never need to worry about indexes, just DAC palette settings.
   I64 i;
+  if (Bt(&sys_run_level,RLf_24BIT_GRP)) return;
   if (!Bt(&sys_run_level,RLf_VGA)) return;
   PUSHFD
   CLI
@@ -29,6 +30,8 @@ U0 GrPaletteIndicesSet()
 
 public U0 GrPaletteColorSet(I64 color_num,CBGR48 bgr48)
 {//VGA has 6-bits for blue, for green, and for red.
+
+  if (Bt(&sys_run_level,RLf_24BIT_GRP)) return;
   if (!Bt(&sys_run_level,RLf_VGA)) return;
   PUSHFD
   CLI
@@ -46,6 +49,7 @@ public U0 GrPaletteColorSet(I64 color_num,CBGR48 bgr48)
 public CBGR48 GrPaletteColorGet(I64 color_num)
 {//VGA has 6-bits for blue, for green, and for red.
   CBGR48 res=0;
+  if (Bt(&sys_run_level,RLf_24BIT_GRP)) return 0;
   if (!Bt(&sys_run_level,RLf_VGA)) return 0;
   PUSHFD
   CLI
@@ -62,10 +66,15 @@ public CBGR48 GrPaletteColorGet(I64 color_num)
 }
 
 public CBGR48 gr_palette_std[COLORS_NUM]={
-0x000000000000,0x00000000AAAA,0x0000AAAA0000,0x00008888CCCC,
-//0xAAAA00000000,0xAAAA0000AAAA,0xAAAA55550000,0xAAAAAAAAAAAA,
-0x000055558888,0xAAAA0000AAAA,0xAAAA55550000,0xCCCCCCCCDDDD,
-0x555555555555,0x55555555FFFF,0x5555FFFF5555,0x3333CCCCFFFF,
+0x000000000000,0x00000000AAAA,0x0000AAAA0000,0x0000AAAAAAAA,
+0x333366669999,0xAAAA0000AAAA,0xAAAA55550000,0xAAAAAAAAAAAA,
+0x555555555555,0x55555555FFFF,0x5555FFFF5555,0x7777CCCCDDDD,
+0xFFFF55555555,0xFFFF5555FFFF,0xFFFFFFFF5555,0xFFFFFFFFFFFF};
+
+public CBGR48 gr_palette_std_old[COLORS_NUM]={
+0x000000000000,0x00000000AAAA,0x0000AAAA0000,0x0000AAAAAAAA,
+0xAAAA00000000,0xAAAA0000AAAA,0xAAAA55550000,0xAAAAAAAAAAAA,
+0x555555555555,0x55555555FFFF,0x5555FFFF5555,0x5555FFFFFFFF,
 0xFFFF55555555,0xFFFF5555FFFF,0xFFFFFFFF5555,0xFFFFFFFFFFFF};
 
 public CBGR48 gr_palette_gray[COLORS_NUM]={

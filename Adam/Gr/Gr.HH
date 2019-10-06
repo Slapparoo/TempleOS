@@ -1,9 +1,5 @@
 #help_index "Sprites/Binary"
 
-
-//#define GR_WIDTH 648
-//#define GR_HEIGHT 480
-
 class CMeshTri
 {
   I32 color;	//Give one of 0-7 colors.

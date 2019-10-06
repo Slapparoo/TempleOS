@@ -326,6 +326,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 		    }
 		    break;
 		  case SC_F6:
+/*
 		    if (sc&SCF_KEY_DESC) {
 		      if (sc&SCF_SHIFT)
 			KeyDescSet("Cmd /God Doodle");
@@ -335,14 +336,17 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 //$LK,"::/Adam/God/HSNotes.DD"$
 		      if (sc&SCF_SHIFT) {
 			DocUnlock(doc);
-			GodDoodle;
+//			GodDoodle;
 			DocLock(doc);
 		      } else
 			GodSong;
 		    }
+*/
 		    break;
+
 		  case SC_F7:
-		    if (sc&SCF_KEY_DESC) {
+/*		    if (sc&SCF_KEY_DESC) {
+
 		      if (sc&SCF_SHIFT)
 			KeyDescSet("Cmd /God Passage");
 		      else
@@ -356,6 +360,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 		      else
 			GodWord;
 		    }
+*/
 		    break;
 		}
 	      }
@@ -515,7 +520,7 @@ public U0 DocPutKey(CDoc *doc,I64 ch=0,I64 sc=0)
 	    if (sc&SCF_KEY_DESC)
 	      KeyDescSet("Cmd /Personal Menu");
 	    else {
-	      m=DocRead("~/PersonalMenu.DD");
+	      m=DocRead("~/PersonalMenu.DD");
 	      DocMenu(m);
 	      DocDel(m);
 	    }

@@ -21,8 +21,8 @@ U0 MsUpdate(I64 x,I64 y,I64 z,Bool l,Bool r)
     ms.pos.z=ms.presnap.z;
   }
 
-  ms.pos.x=ClampI64(ms.pos.x,0,GR_WIDTH-1);
-  ms.pos.y=ClampI64(ms.pos.y,0,GR_HEIGHT-1);
+  ms.pos.x=ClampI64(ms.pos.x,0,vesa_info.width-1);
+  ms.pos.y=ClampI64(ms.pos.y,0,vesa_info.height-1);
   ms.pos_text.x=ms.pos.x/FONT_WIDTH;
   if (ms.pos_text.x>=text.cols) {
     ms.pos_text.x=text.cols-1;
@@ -41,9 +41,9 @@ U0 MsUpdate(I64 x,I64 y,I64 z,Bool l,Bool r)
 
 U0 MsSet(I64 x=I64_MAX,I64 y=I64_MAX,I64 z=I64_MAX,I64 l=I64_MAX,I64 r=I64_MAX)
 {//Note: Generates a message. See $LK,"MsSet",A="FF:::/Demo/Games/Zing.HC,MsSet"$().
-  if (!(0<=x<GR_WIDTH))
+  if (!(0<=x<vesa_info.width))
     x=ms.pos.x;
-  if (!(0<=y<GR_HEIGHT))
+  if (!(0<=y<vesa_info.height))
     y=ms.pos.y;
   if (z==I64_MAX)
     z=ms.pos.z;
@@ -211,14 +211,14 @@ U0 MsHardSetPost()
 //TODO ms_grid.x_offset?
   if (i<0)
     ms.offset.x-=i;
-  else if (i>=GR_WIDTH)
-    ms.offset.x+=GR_WIDTH-1-i;
+  else if (i>=vesa_info.width)
+    ms.offset.x+=vesa_info.width-1-i;
 
   i=Trunc(ms.scale.y*ms_hard.pos.y/ms_grid.y)*ms_grid.y+ms.offset.y;
   if (i<0)
     ms.offset.y-=i;
-  else if (i>=GR_HEIGHT)
-    ms.offset.y+=GR_HEIGHT-1-i;
+  else if (i>=vesa_info.height)
+    ms.offset.y+=vesa_info.height-1-i;
 
   if (ms_hard.pos.x!=ms_hard_last.pos.x || ms_hard.pos.y!=ms_hard_last.pos.y ||
 	ms_hard.pos.z!=ms_hard_last.pos.z) {
@@ -358,10 +358,10 @@ U0 KbdMsInit()
   ms_hard.scale.x=0.5;
   ms_hard.scale.y=0.5;
   ms_hard.scale.z=1.0;
-  ms_hard.prescale.x=GR_WIDTH/ms_hard.scale.x/2.0;
-  ms_hard.prescale.y=GR_HEIGHT/ms_hard.scale.y/2.0;
+  ms_hard.prescale.x=vesa_info.width/ms_hard.scale.x/2.0;
+  ms_hard.prescale.y=vesa_info.height/ms_hard.scale.y/2.0;
   ms_hard.prescale.z=0/ms_hard.scale.z;
-  ms_hard.pos.x=GR_WIDTH>>1;
-  ms_hard.pos.y=GR_HEIGHT>>1;
+  ms_hard.pos.x=vesa_info.width>>1;
+  ms_hard.pos.y=vesa_info.height>>1;
   MemCpy(&ms_hard_last,&ms_hard,sizeof(CMsHardStateGlbls));
 }

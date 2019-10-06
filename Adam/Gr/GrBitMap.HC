@@ -1,11 +1,22 @@
+// Brook I think these are all canvas writes
 #help_index "Graphics"
 
+/*
+public extern U0 CDC_update(CDC *this, I64 crect);
+public extern U0 CDC_cleaned(CDC *this);
+public extern I64 CRect_join(I64 this, I64 that);
+public I64 CRectCreate(U16 x1, U16 y1, U16 x2, U16 y2) {
+
+*/
+
 Option(OPTf_WARN_HEADER_MISMATCH,OFF);
+// Brook - I think this is a draw to canvas - put Pixel
 public Bool GrPlot0(CDC *dc=gr.dc,I64 x,I64 y)
 {//2D. No clipping or transformation or thick.
   U8 *dst;
   I32 *db;
   I64 d,dist;
+
   CColorROPU32 c,color=dc->color,bkcolor=dc->bkcolor;
 
   if (dc->flags & DCF_LOCATE_NEAREST) {
@@ -47,6 +58,7 @@ public Bool GrPlot0(CDC *dc=gr.dc,I64 x,I64 y)
     case ROPB_EQU:
     case ROPB_MONO:
       *dst=color.c0.color;
+      CDC_update(dc, CRectCreate(x, y, x+1, y+1));
       break;
     case ROPB_COLLISION:
       c=*dst;
@@ -55,6 +67,7 @@ public Bool GrPlot0(CDC *dc=gr.dc,I64 x,I64 y)
       break;
     case ROPB_XOR:
       *dst^=color.c0.color;
+      CDC_update(dc, CRectCreate(x, y, x+1, y+1));
       break;
   }
   return TRUE;
@@ -67,6 +80,8 @@ public I64 GrPeek0(CDC *dc=gr.dc,I64 x,I64 y)
 }
 
 #help_index "Graphics;Graphics/Device Contexts"
+
+// Brook draw to canvas
 
 public I64 GrBlot(CDC *dc=gr.dc,I64 x,I64 y,CDC *img)
 {//2D. Clipping but not transformation..
@@ -147,7 +162,7 @@ public I64 GrBlot(CDC *dc=gr.dc,I64 x,I64 y,CDC *img)
       case ROPB_COLLISION: //TODO: Might want to check win_z_buf
 	color =dc->bkcolor.c0.color;
 	k=h1*img->width_internal;
-	k1=(h1+y)*dc->width_internal+x;
+	k1 = (h1 + y) * dc->width_internal + x;
 	for (j=h2-h1;j;j--) {
 	  for (i=w1;i<w2;i++) {
 	    c=dc->body[k1+i];
@@ -157,6 +172,7 @@ public I64 GrBlot(CDC *dc=gr.dc,I64 x,I64 y,CDC *img)
 	  k+=img->width_internal;
 	  k1+=dc->width_internal;
 	}
+        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	break;
       case ROPB_MONO:
 	color_mask=gr.to_8_colors[color.c0.color];
@@ -311,6 +327,7 @@ public I64 GrBlot(CDC *dc=gr.dc,I64 x,I64 y,CDC *img)
 	    }
 	  }
 	}
+        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	break;
       case ROPB_EQU:
 	if (img->flags&DCF_NO_TRANSPARENTS) {
@@ -332,6 +349,7 @@ public I64 GrBlot(CDC *dc=gr.dc,I64 x,I64 y,CDC *img)
 	  kk1=(h1+y)*dc->width_internal+x+w1;
 	  kk =(kk-bit_shift)&~7+bit_shift;
 	  bit_shift*=8;
+          // brook pixel updates
 	  if (win_z_buf_ptr)
 	    for (j=h1;j<h2;j++) {
 	      src=img->body+kk&~7;
@@ -470,6 +488,7 @@ here1a:
 	  }
 	  dc->color=color;
 	}
+        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	break;
       case ROPB_XOR:
 	if (img->flags&DCF_NO_TRANSPARENTS) {
@@ -574,6 +593,7 @@ here1a:
 	      kk +=img->width_internal;
 	      kk1+=dc->width_internal;
 	    }
+          CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	} else
 	  goto here1a;
 	break;
@@ -774,6 +794,8 @@ public I64 GrPutChar(CDC *dc=gr.dc,I64 x,I64 y,U8 ch)
 	}
       }
     } else {
+      CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+
       color_mask=gr.to_8_colors[color.c0.color];
       k1=x+w1;
       kk1=(h1+y)*dc->width_internal+k1;
@@ -1005,6 +1027,8 @@ public I64 GrVPrint(CDC *dc=gr.dc,I64 x,I64 y,U8 *fmt,...)
 }
 
 #help_index "Graphics"
+
+// Brook Canvas write
 public I64 GrRect(CDC *dc=gr.dc,I64 x,I64 y,I64 w,I64 h)
 {//2D. Width Height. Clipping but not transformation.
 //Returns cnt of pixs changed.
@@ -1069,6 +1093,7 @@ public I64 GrRect(CDC *dc=gr.dc,I64 x,I64 y,I64 w,I64 h)
     }
     if (dc->flags & DCF_DONT_DRAW)
       return TRUE;
+
     color=dc->color;
     if (color.c1.rop&(ROPBF_DITHER|ROPBF_PROBABILITY_DITHER)) {
       dither=TRUE;
@@ -1122,6 +1147,9 @@ public I64 GrRect(CDC *dc=gr.dc,I64 x,I64 y,I64 w,I64 h)
 	win_z_buf_line_inc=TEXT_COLS*sizeof(U16)-win_z_buf_line_dec;
       }
       kk1=(h1+y)*dc->width_internal+x+w1;
+
+      CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+
       if (dither) {
 	if (probability_dither) {
 	  if (RandU16<dc->dither_probability_u16)
@@ -1518,6 +1546,8 @@ gr_done:
 I64 GrRayLen(CDC *dc,I64 *x1,I64 y,I64 z=0,I32 *db=NULL)
 {
 //Returns cnt of pixs changed
+// Brook needs dirtyrect
+
   I64 res=0,d,x=*x1,x2,x3,y3,dist;
   Bool plot,dither,probability_dither,
 	not_color=ToBool(dc->flags&DCF_FILL_NOT_COLOR);
@@ -1838,6 +1868,8 @@ public I64 GrHLine(CDC *dc=gr.dc,I64 x1,I64 x2,I64 y,I64 z1=0,I64 z2=0)
 	  plot=FALSE;
       }
       if (plot) {
+
+        // brook color goes here
 	dst=dc->body+d;
 	c=color.c0.color;
 	switch [color.c0.rop] {

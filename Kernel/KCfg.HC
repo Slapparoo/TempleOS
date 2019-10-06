@@ -41,8 +41,8 @@ CDoc *KCfgAddDev(CKCfg *c)
     c->boot_drv_let=ch;
   else
     c->boot_drv_let=Drv2Let(Fs->cur_dv);
-  "\n\n$$BK,1$$$$PURPLE$$Mount drives so they will be present when "
-	"you boot.$$FG$$$$BK,0$$\n";
+  "\n\n$$PURPLE$$Mount drives so they will be present when "
+	"you boot.$$FG$$\n";
   Mount2(c->boot_drv_let,doc,FALSE);
   return doc;
 }
