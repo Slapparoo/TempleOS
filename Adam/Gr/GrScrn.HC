@@ -513,7 +513,7 @@ public U0 GrCalcScrnUpdates(U64 a=0) {
 
 U0 GrCopyScreenBuffer(U64 a = 0) {
   MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
-}
+}
 
 
 
@@ -532,9 +532,9 @@ U0 GrFullScreenDraw32(U64 x=0){
     *dst = pal[*src++ & 0xF] | pal[*src & 0xF]<<32;
   }
 
-//  GrCalcScrnUpdates;
+  GrCalcScrnUpdates;
 //  GrCopyScreenBuffer;
-  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
+//  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
 
 }
 
@@ -556,7 +556,7 @@ U0 GrUpdateVGAGraphics()
       OutU8(VGAP_IDX,VGAR_MAP_MASK);
       OutU8(VGAP_DATA,plane);
       vga=text.vga_alias;
-      row=gr.zoomed_dc->height;
+      row=gr.zoomed_dc->height;
       while (row--)
 	GrUpdateLine64FlushCache(&vga,&src,d,&dst);
     }
