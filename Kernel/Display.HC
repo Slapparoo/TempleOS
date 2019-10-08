@@ -54,7 +54,6 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
     col=text.raw_col%text.cols;
     // Brook rlf vga no set
     if (!Bt(&sys_run_level,RLf_24BIT_GRP)) { //if text mode
-//    if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode
       if (text.raw_flags&RWF_SCROLL && text.raw_col && !row && !col) {
 	MemCpy(text.vga_text_alias,text.vga_text_alias+text.cols*2,
 	      text.cols*(text.rows-1)*2);
@@ -66,20 +65,20 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
       ptr[0]=ch;
       ptr[1]=BLACK<<4+WHITE;
     } else {
-      if (text.raw_flags&RWF_SCROLL && text.raw_col && !row && !col) {
-//Scroll cached image
+      if (text.raw_flags & RWF_SCROLL && text.raw_col && !row && !col) {
+        //Scroll cached image
         ScrollScrnDown(screen32_, FONT_HEIGHT);
         MemSetU32(screen32_->buffer+screen32_->size -(screen32_->width*FONT_HEIGHT),
-               WIN_BACK,screen32_->width*FONT_HEIGHT);
+               WIN_BACK,screen32_->width*FONT_HEIGHT);
 
-	text.raw_col-=text.cols;
-	row=text.rows-1;
+	text.raw_col -= text.cols;
+	row = text.rows - 1;
       }
 
-        PUSHFD
-        CLI
-          screen32_->printFont(screen32_, ch&255, col*8, row*8, WIN_FG, WIN_BACK);
-        POPFD
+      PUSHFD
+      CLI
+      screen32_->printFont(screen32_, ch&255, col*8, row*8, WIN_FG, WIN_BACK);
+      POPFD
 
     }
     text.raw_col++;

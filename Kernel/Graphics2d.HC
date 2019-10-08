@@ -18,6 +18,7 @@ public U32 pal4bit[16] =
      LTRED32, LTPURPLE32,YELLOW32, WHITE32};
 
 
+public Bool DefaultDraw = TRUE;
 
 U0 Copy4BitToScreen(CDC *dc)
 {//Copy the 4bit screen to the 32bit display screen
@@ -41,7 +42,7 @@ I64 SgnI64(I64 val) {
 
 U0 UpdateScrn() {
   // 32bit buffer 32 bit pysical screen
-  MemCpyU32(screen32_->buffer,screen32->buffer,screen32->bufferSize>>2);
+  MemCpyU64(screen32_->buffer,screen32->buffer,screen32->bufferSize>>3);
 }
 
 
@@ -51,7 +52,7 @@ U0 UpdateScrn() {
 Brook not great redraw the "known" windows
 */
 U0 redraw32() {
-}
+}
 
 
 #exe {Option(OPTf_WARN_PAREN,ON);};

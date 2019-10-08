@@ -12,6 +12,8 @@ U0 BSplineDemo()
   DocClear;
   "Sel ctrl points with left mouse.  Right when finished.\n";
   DCFill;
+  StandardDraw = FALSE;  
+
   do {
     msg_code=GetMsg(&arg1,&arg2,1<<MSG_MS_L_UP+1<<MSG_MS_R_UP);
     if (msg_code==MSG_MS_L_UP) {
@@ -19,16 +21,20 @@ U0 BSplineDemo()
       dc->color=GREEN;
       GrCircle(dc,arg1,arg2,10);
       i++;
+      Copy4BitToScreen(dc);
     }
   } while (i<PTS_NUM && msg_code!=MSG_MS_R_UP);
+
   dc->color=RED;
   Gr2BSpline(dc,c,i,TRUE);
   dc->color=BLUE;
   Gr3BSpline(dc,c,i,TRUE);
+  Copy4BitToScreen(dc);
   DCDel(dc);
   SettingsPop;
 
   PressAKey;
+  StandardDraw = TRUE;
   DCFill;
 }
 

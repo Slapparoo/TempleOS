@@ -3979,7 +3979,7 @@ public class CVesaInfo
 
 
 #help_index "Graphics/VBE2"
-public class CVBE2Info
+public class CVBE2Info
 {
   U8 signature[4];
   U16 version;

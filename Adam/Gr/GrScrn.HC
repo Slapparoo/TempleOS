@@ -389,9 +389,6 @@ U0 GrUpdateTextModeText()
   }
 }
 
-//U8 *screenCache;
-
-
 public U32 pal[16] = 
     {BLACK32, BLUE32,    GREEN32,  CYAN32,
      0x002288,PURPLE32,  BROWN32,  LTGREY32,
@@ -415,6 +412,7 @@ U0 GrUpdateGr32ModeText()
   U32 updCnt = 0;
 
   if (LBtr(&sys_semas[SEMA_FLUSH_VGA_IMAGE],0)) {
+    // full screen update
     for (y=0;y < TEXT_ROWS;y++) {
       yy = y<<3;
       for (x=0;x < TEXT_COLS;x++) {
@@ -434,14 +432,14 @@ U0 GrUpdateGr32ModeText()
         fg2 = pal[fg];
         bg2 = pal[bg];
 
-        screen32->printAsmFont(screen32, cur_ch&0xFF, x<<3, yy, fg2, bg2);
+        screen32->printFont(screen32, cur_ch&0xFF, x<<3, yy, fg2, bg2);
         *dst2++=cur_ch;
       }
     }
-    MemCpyU32(screen32_->buffer, screen32->buffer, screen32->bufferSize>>2);
+    MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
 
-//    screen32->pushUpdates(screen32, screen32_, 0, 0);
   } else {
+    // only update the changes
     for (y=0;y < TEXT_ROWS;y++) {
       yy = y<<3;
       for (x=0;x < TEXT_COLS;x++) {
@@ -462,7 +460,7 @@ U0 GrUpdateGr32ModeText()
           bg2 = pal[bg];
 
           xx=x<<3;
-          screen32->printAsmFont(screen32, cur_ch&0xFF, xx, yy, fg2, bg2);
+          screen32->printFont(screen32, cur_ch&0xFF, xx, yy, fg2, bg2);
           screen32->pushUpdates(screen32, screen32_, 0, 0);
 
           *dst2++=cur_ch&0xFFFF;
@@ -472,19 +470,6 @@ U0 GrUpdateGr32ModeText()
         }
       }
     }
-/*    if (gr.dc2->updated) {
-       screen32_->printAsmFont(screen32_, '2', 900, 50, 0x4444FF, 0xFF8888);
-       CDC_cleaned(gr.dc2);
-    }
-    if (gr.dc->updated) {
-       screen32_->printAsmFont(screen32_, 'U', 908, 50, 0x4444FF, 0xFF8888);
-       CDC_cleaned(gr.dc);
-    }
-    if (gr.dc1->updated) {
-       screen32_->printAsmFont(screen32_, '1', 916, 50, 0x4444FF, 0xFF8888);
-       CDC_cleaned(gr.dc1);
-    }
-*/
   }
 
 }
@@ -501,157 +486,33 @@ U0 GrClearDC() {
 }
 
 /*
-U0 GrUpdateGraphics32(U64){
-  //Copy the 4bit screen to the 32bit display screen
-  // fudging it;
-
-  U32 *dst = screen32_->buffer, *dst2 = screen32->buffer, c;
-  CDC *dc=gr.dc2; // GrUpdateGraphics32
-  U64 len = dc->height*dc->width_internal;
-  U8 *src =dc->body, *cch = screenCache, j;
-  
-  U64 size=src+len; 
-
-  for (src=dc->body; src < size; src++, dst++, cch++, dst2++) {
-    j = *src;
-    if (j != *cch) {
-      c = pal[j&0xF];
-      *dst = c;
-      *dst2 = c;
-      *cch = j;
-    }
-  }
-}
-*/
-
-/*
-
-public U64 GR_UP_CNT1 = 0;
-public U64 GR_UP_CNT2 = 0; 
-public U64 GR_UP_CNT3 = 0; 
-
-public U0 GrPixelUpdatedByIdx(U64 xyOffset) {
-// this is the Screen based index, not the updates bitmap based index
-// this should just be a call to BEqu
-
-  U64 qofs = (xyOffset)>>7;
-  U64 bofs = (xyOffset)>>1&0b111111;
-
-
-//  "x=%d, y=%d, qofs=%d bofs=%d bMap=%b\n", x, y, qofs, bofs, 1<<bofs;
-
-//  U64 bMap = *gr.pxlsUpd[qofs];
-//  bMap |= 1<<bofs;
-
-  gr.pxlsUpd[qofs] |= 1<<bofs;
-  GR_UP_CNT1++; 
-}
-
-
-public U0 GrPixelUpdatedRect(U64 crect) {
-  CRect *r = &crect;  
-  U64 x, y, yy;
-  //  inefficient
-  for (y = r->y1; y < r->y2; y++) {
-    yy = y * screen32->width;
-    for (x = r->x1; x < r->x2; x++) {
-      GrPixelUpdatedByIdx(yy + x);
-    }
-  }
-  GR_UP_CNT2++; 
-}
-
-
-
-public U0 GrPixelUpdated(U64 x, U64 y) {
-  GrPixelUpdatedByIdx(y * screen32->width + x);
-  GR_UP_CNT3++; 
-}
-*/
-/*
 Calculate the pixels which have changed
 */
 public U0 GrCalcScrnUpdates(U64 a=0) {
   // compare the previous screen to the current screen
+  // this works on 2 pixels at a time
+  
+  // this works on the assuption that writing to
+  // video memory is slower than regular memory
+
   U16 *scrn = gr.dc2->body, *lstScrn = screenCache;
-  U64 difsSize = screen32->width*screen32->height>>1, i;
+  U64 difsSize = screen32->width*screen32->height>>1;
   U64 *src = screen32->buffer, *dst = screen32_->buffer;
 
-  for (i = 0; i < difsSize; i++, dst++, src++) {
-    if (*scrn++ != *lstScrn++) {
-      *dst = *src;
+  I64 i = difsSize-1;
+
+  for (; i >= 0; i--) {
+    if (scrn[i] != lstScrn[i]) {
+      dst[i] = src[i];
     }
   }
+
   MemCpyU64(screenCache, gr.dc2->body, difsSize>>2);
 }
 
-/*
-
-Transfer just the changes to the Video Buffer (LFB)
-*/
-/*
-public U0 GrUpdateChanged(U64 a=0) {
-  U64 difsSize = screen32->width*screen32->height>>7;
-  U64 i = 0, ix, bt;
-  U64 *src = screen32->buffer, *dst = screen32_->buffer;
-
-  for (;i < difsSize; i++) {
-    U64 changes = gr.pxlsUpd[i] | gr.lstPxlsUpd[i];
-
-    if (changes) {
-      for (ix = 0; ix < 64; ix++, dst++, src++) {
-        bt = 1<<ix;
-        if (changes&bt) {
-          *dst = *src;
-        }
-      }
-
-    } else {
-      src += 64;
-      dst += 64;
-    }
-  }
-
-  src = gr.lstPxlsUpd;
-  gr.lstPxlsUpd = gr.pxlsUpd;
-  gr.pxlsUpd = src;
-  MemSetI64(src, 0, difsSize);
-}
-*/
 
 U0 GrCopyScreenBuffer(U64 a = 0) {
-//  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
-/*   U64 reg RDI *dst = screen32_->buffer;
-   U64 reg RSI *src = screen32->buffer;
-   U64 reg RCX *cnt = screen32->bufferSize>>6;
-   asm {
-     @@05:
-        MOV R8,[RSI] 
-        MOV R9,[RSI+8] 
-        MOV R10,[RSI+16] 
-        MOV R11,[RSI+24] 
-        MOV R12,[RSI+32] 
-        MOV R13,[RSI+40] 
-        MOV R14,[RSI+48] 
-        MOV R15,[RSI+56]
-
-        MOV [RDI], R8 
-        MOV [RDI+8], R9 
-        MOV [RDI+16], R10 
-        MOV [RDI+24], R11 
-        MOV [RDI+32], R12 
-        MOV [RDI+40], R13 
-        MOV [RDI+48], R14 
-        MOV [RDI+56], R15
-
-        ADD RSI, 64
-        ADD RDI, 64
-        DEC RCX
-        JNZ @@05
-   }
-*/
-//   GrCalcScrnUpdates;
-//   GrUpdateChanged; 
+  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
 }
 
 
@@ -660,21 +521,20 @@ U0 GrFullScreenDraw32(U64 x=0){
   //Copy the 4bit screen to the 32bit display screen
   // fudging it;
 
-  U32 *dst = screen32->buffer;
+  U64 *dst = screen32->buffer;
   CDC *dc=gr.dc2; // GrUpdateGraphics32
   U64 len = dc->height*dc->width_internal;
   U8 *src =dc->body, j;
   
   U64 size=src+len; 
 
-  for (src=dc->body; src < size; src++, dst++) {
-    *dst = pal[*src&0xF];
+  for (src = dc->body; src < size; src++, dst++) {
+    *dst = pal[*src++ & 0xF] | pal[*src & 0xF]<<32;
   }
-//  Spawn(&GrCopyScreenBuffer,,,mp_cnt-1);
+
+//  GrCalcScrnUpdates;
 //  GrCopyScreenBuffer;
-//  LOCK 
-  GrCalcScrnUpdates;
-//  Spawn(&GrCalcScrnUpdates,,,mp_cnt-1);
+  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
 
 }
 
@@ -696,7 +556,7 @@ U0 GrUpdateVGAGraphics()
       OutU8(VGAP_IDX,VGAR_MAP_MASK);
       OutU8(VGAP_DATA,plane);
       vga=text.vga_alias;
-      row=gr.zoomed_dc->height;
+      row=gr.zoomed_dc->height;
       while (row--)
 	GrUpdateLine64FlushCache(&vga,&src,d,&dst);
     }
@@ -720,19 +580,10 @@ U0 GrUpdateGr32Mouse() {
   PUSHFD
   CLI
   x=ms.pos.x;
-  y=ms.pos.y + 8;  // ms.pos is being clipped
+//  y=ms.pos.y + 8;  // ms.pos is being clipped
+  y=ms.pos.y;  // ms.pos is being clipped
   POPFD
   if (ms.show && ms_hard.installed) {
-
-/*    if (ms.lb) {
-      dc->color=ROP_XOR+LTPURPLE^TRANSPARENT;
-    } else if (ms.rb) {
-      dc->color=ROP_XOR+LTCYAN^TRANSPARENT;
-    } else {
-      dc->color=ROP_XOR+BLACK^TRANSPARENT;
-    } 
-  
-*/
     // pushLast area to pref mouse position
        CRect *tm = &thisMouse; 
 
@@ -746,40 +597,23 @@ U0 GrUpdateGr32Mouse() {
        CLI
        if (lastMouse != -1) {
          screen32_->UpdateScrnRegion(lastMouse);
-//         UpdateScrnRegion(lastMouse.u16[0], lastMouse.u16[1], lastMouse.u16[2], lastMouse.u16[3]);
        }
       
-       screen32_->printAsmFont(screen32_, 'þ', x, y, 0xFFFFFF, 0);
- 
-
-//       PrintFont32(&screen_, 'þ', x, y, 0xFFFFFF, 0);
+       screen32_->printFont(screen32_, 'þ', x, y, 0xFFFFFF, 0);
        POPFD
        
        lastMouse = thisMouse;
   }
 }
 
-U0 GrUpdateThread(U64 x = 0) {
-  DCBlotColor4(gr.dc1->body,gr.dc2->body,gr.dc_cache->body,
-    gr.dc2->height*gr.dc2->width_internal>>3);
-//  GrUpdateGraphics32(0);
-  GrFullScreenDraw32;
-  
-//  GrUpdateGr32ModeText;
-//  GrUpdateGr32Mouse;
-}
-
-
 
 U0 GrUpdateScrn(U64 a=0)
 {//Called by the Window Manager $LK,"HERE",A="FF:::/Adam/WinMgr.HC,GrUpdateScrn"$, 30 times a second.
   CDC *dc;
-//  "GrUpdateScrn\n";
 
   if (vesa_info.return_code == 0x4F) {
     GrUpdateTextBG;
     GrUpdateTextFG;
-//    GrClearDC;
     GrUpdateTasks;
     // dest, src
     DCBlotColor8(gr.dc2,gr.dc);
@@ -793,7 +627,6 @@ U0 GrUpdateScrn(U64 a=0)
     DCBlotColor8(gr.dc2,gr.dc);
   }
 
-  // Brook update to 32bit draw mouse etc
   dc=DCAlias(gr.dc2,Fs);
   dc->flags|=DCF_ON_TOP;
   if (gr.fp_final_scrn_update)
@@ -801,19 +634,10 @@ U0 GrUpdateScrn(U64 a=0)
   DCDel(dc);
 
   if (vesa_info.return_code == 0x4F) {
-    
     DCBlotColor4(gr.dc1->body,gr.dc2->body,gr.dc_cache->body,
 	  gr.dc2->height*gr.dc2->width_internal>>3);
 
-    /*
-    GrUpdateGraphics32(0);
-
-    GrUpdateGr32ModeText;
-    GrUpdateGr32Mouse;
-    */
-//    Spawn(&GrUpdateThread,,,1);
-    GrUpdateThread;
-
+    GrFullScreenDraw32;
   } else if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode {
     GrUpdateTextModeText;
   } else {

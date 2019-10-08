@@ -27,15 +27,15 @@ for ( i = 0; i < 50; ++i) {
     "$$LTGREEN$$";
   }
   if (vesa_modes[i].mode == vesa_info.mode) {
-    " *";
+    "$$BG,LTGRAY$$ *";
   } else {
     "  ";
   }
 
 
-  "Mode 0x%p", vesa_modes[i].mode;
-  " w/h/bpp %4d, %4d, %2d\n",vesa_modes[i].width, vesa_modes[i].height, vesa_modes[i].bpp;
-  "$$FG$$";
+  "Mode 0x%p", vesa_modes[i].mode;
+  " w/h/bpp %4d, %4d, %2d %b\n",vesa_modes[i].width, vesa_modes[i].height, vesa_modes[i].bpp, vesa_modes[i].attributes;
+  "$$FG$$$$BG$$";
   
 
 
@@ -77,8 +77,8 @@ for ( i = 0; i < 50; ++i) {
 
 "Requested mode:\n";
 
-"attributes        %d\n",vesa_info.attributes;
-"attributes        %b\n",vesa_info.attributes;
+"attributes        %h\n",vesa_info.attributes;
+"attributes        %b\n",vesa_info.attributes;
 "window_a          %d\n",vesa_info.window_a;
 "window_b          %d\n",vesa_info.window_b;
 "granularity       %d\n",vesa_info.granularity;

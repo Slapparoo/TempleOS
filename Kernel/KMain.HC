@@ -227,7 +227,7 @@ U0 KMain()
   DbgMode(OFF);
   cnts.time_stamp_freq_initial=TimeCal;
   Cd("/");
-  try ExeFile("StartOS"); //Continues $LK,"/StartOS.HC",A="FL:/StartOS.HC,1"$
+  try ExeFile("01-StartOS"); //Continues $LK,"/StartOS.HC",A="FL:/StartOS.HC,1"$
   catch {
     Raw(ON);
     Silent(OFF);

@@ -57,7 +57,17 @@ SYS_VESA_MODE: DU16   0;
 SYS_VESA_BFSZ: DU64   0;
 #assert $$-SYS_VESA==sizeof(CVesaInfo)
 
-MODES_ARRY::    DU8 13400 DUP(0); // modes[50];
+MODES_ARRY::    DU8 4960 DUP(0); // modes[20];
+
+// should have an assert
+
+
+SYS_SCRN_WIDTH:  DU16 1024;  // requested width
+SYS_SCRN_HEIGHT: DU16 768;  // requested height
+
+//SYS_SCRN_WIDTH:  DU16 640;  // requested width
+//SYS_SCRN_HEIGHT: DU16 480;  // requested height
+
 
 SYS_VBE2::     
 SYS_VBE2_DATA1: DU8 14 DUP(0);
@@ -65,8 +75,10 @@ SYS_VBE2_MODES: DU32;
 
 SYS_VBE2_DATA: DU8 498 DUP(0);
 SYS_VBE2_RES:  DU16   0;
-SYS_VBE2_MODE: DU16   0x4144; // <-- the the Graphics mode here
+//SYS_VBE2_MODE: DU16   0x4144; // <-- the the Graphics mode here
+SYS_VBE2_MODE: DU16   0; // <-- the the Graphics mode here
 
+// Virtual box
 // 640x480x32   = 0x4142
 // 800x600x32   = 0x4143
 // 1024x768x32  = 0x4144
@@ -124,7 +136,7 @@ GET_RIP:	POP	BX
         PUSH    DS
         POP     ES
         MOV     DI, MODES_ARRY
-        MOV     BX, 50
+        MOV     BX, 20
         MOV     CX, 0x40FF
 // array of U16 support modes    
 @@06: // loop
@@ -147,10 +159,27 @@ GET_RIP:	POP	BX
 	CMP	AX,0x004F
 	JNE	@@06		// don't add to list
 
+        MOV     AL, 0x20        // 32 bpp
+        CMP     [DI+25], AL     // only want 32bit
+	JNE	@@06		// don't add to list
+
+
+// check for our requested mode
+        MOV     AX, [SYS_SCRN_WIDTH]
+        CMP     [DI+18], AX    
+        JNE     @@06A
+        MOV     AX, [SYS_SCRN_HEIGHT]
+        CMP     [DI+20], AX    
+        JNE     @@06A
+// were here because the width & height match
+        MOV     U16 [SYS_VBE2_MODE], CX
+@@06A:
         ADD     DI,256
+	MOV	AX,0x004F
         MOV     [DI],AX
         MOV     [DI+2],CX
         ADD     DI,12
+
 
         DEC     BX
         JNZ     @@06
@@ -178,6 +207,12 @@ GET_RIP:	POP	BX
 // Set Mode
 	MOV	AX,0x4F02
 	MOV	BX,[SYS_VBE2_MODE]
+
+        CMP     BX, 0
+        JE      @@10
+
+
+
 //	MOV	BX,0x12		//640x480 16 color
 #exe {
   if (!kernel_cfg->opts[CFG_TEXT_MODE])

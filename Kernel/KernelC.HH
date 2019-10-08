@@ -2,6 +2,8 @@
 #help_file "::/Doc/AutoComplete"
 public extern CAutoCompleteGlbls ac;
 
+public extern Bool StandardDraw;
+
 #help_index "AutoComplete/Dictionary"
 public extern CAutoCompleteDictGlbls acd;
 

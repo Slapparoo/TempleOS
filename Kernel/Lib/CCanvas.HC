@@ -325,19 +325,19 @@ U0 CCanvas_printFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
 
   // x,y are tracked for cliprect
 
-  for (count = 0; count<64; count++) {
+  for (count = 0; count < 64; count++) {
   // FONT_WIDTH x FONT_HEIGHT
     if (letterT & 0x1) {
-      if (CRect_pxinside(this->clipRct, x, y)) {
+//      if (CRect_pxinside(this->clipRct, x, y)) {
 //        _CCanvas_tranformPixel(dst, fg);
           *dst = fg;
-      }
+//      }
       dst++;
     } else {
-      if (CRect_pxinside(this->clipRct, x, y)) {
+//      if (CRect_pxinside(this->clipRct, x, y)) {
 //        _CCanvas_tranformPixel(dst, bg);
-          *dst = bg;
-      }
+          *dst = bg;
+//      }
       dst++;
     }
     if (count & 0x7 == 0x7) {
@@ -354,7 +354,7 @@ U0 CCanvas_printFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
 U0 CCanvas_printAsmFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   // no clipping
 //  (printFonts_[letter&0xFF])(&this->buffer[(this->width * y) + x], this->width<<2, fg, bg);
-  CCanvas_printFont(this, letter, x, y, fg, bg);
+//  CCanvas_printFont(this, letter, x, y, fg, bg);
 //  _CCanvas_update(this, CRectCreate(x, y, x+8, y+8));
 }
 
@@ -652,7 +652,8 @@ public CCanvas *CCanvasCreate(I64 width, I64 height, U32 *buffer =0) {
   this->cleaned=&CCanvas_cleaned;
   this->pushUpdates=&CCanvas_pushUpdates;
   this->free=&CCanvas_free;
-  this->printAsmFont=&CCanvas_printAsmFont;
+ // this->printAsmFont=&CCanvas_printAsmFont;
+  this->printAsmFont=&CCanvas_printFont;
   this->UpdateScrnRegion=&_CCanvas_UpdateScrnRegion;
  
 
@@ -729,29 +730,6 @@ U0 CRect_test1() {
 
 }
 
-
-//CRect_test;
-
-//CCanvas *c = CCanvasCreate(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
-/*
-screen32 = CCanvasCreate(vesa_info.width, vesa_info.height, 0);
-screen32_ = CCanvasCreate(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
-
-
-
-MemSet(screen32->buffer, 0, screen32->bufferSize);
-
-"screen buffer %p\n", screen32_->buffer;
-
-
-CCanvas_test1(screen32);
-
-
-"free 1\n";
-screen32->free(screen32);
-"free 2\n";
-screen32_->free(screen32_);
-*/
 
 //public U64 CDC_UPD_CNT1 = 0;
 
