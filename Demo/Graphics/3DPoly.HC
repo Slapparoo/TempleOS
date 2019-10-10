@@ -6,8 +6,7 @@ U0 Main()
   DCDepthBufAlloc(dc);
   dc->flags|=DCF_TRANSFORMATION|DCF_SYMMETRY;
   try {
-    StandardDraw = FALSE;
-    while (!ScanChar) {
+    while (!ScanChar) {
       DCDepthBufRst(dc);
       DCSymmetrySet(dc,Fs->pix_width/2,Fs->pix_height/2,
 	    ms.pos.x-Fs->pix_left-Fs->scroll_x,
@@ -102,7 +101,6 @@ U0 Main()
       poly[3].z=0;
       GrFillPoly3(dc,4,poly);
 
-      Copy4BitToScreen(dc);
       Refresh;
       DCFill;
       é+=2.1*ã/180.0;
@@ -114,10 +112,7 @@ U0 Main()
     PutExcept;
   
   DCFill;
-    Copy4BitToScreen(dc);
   DCDel(dc);
-  StandardDraw = TRUE;
-  
 }
 
 Main;
