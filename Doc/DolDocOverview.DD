@@ -220,7 +220,7 @@ $ID,2$See $LK,"::/Demo/DolDoc/ClickCallBack.HC"$.
 $ID,-2$$TR,"+RC Right CallBack"$
 $ID,2$See $LK,"::/Demo/DolDoc/ClickCallBack.HC"$.
 $ID,-2$
-<$LK,"ArgCode",A="FF:::/Adam/DolDoc/DocInit.HC,ST_DOC_FLAGS"$>  See $LK,"Arg Defines",A="MN:DOCEf_TAG"$.
+<$LK,"ArgCode",A="FF:::/Adam/DolDoc/DocInit.HC,ST_DOC_FLAGS"$>  See $LK,"Arg Defines",A="MN:DOCEf_TAG"$.
 $TR,"T=\"\" Tag Str"$
 $ID,2$Some cmds have a tag by default.  See $LK,"TX+T",A="FF:::/Adam/DolDoc/DocInit.HC,TX+T"$.  You can code $FG,2$T="tag_text"$FG$ as just $FG,2$"tag_text"$FG$ with no $FG,2$T=$FG$. 
 $ID,-2$$TR,"LEN=\"\" Field Length"$

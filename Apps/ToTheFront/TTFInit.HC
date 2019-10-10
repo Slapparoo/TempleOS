@@ -1,7 +1,7 @@
 /*I got tricky by not defining a color
 right away in these $LK,"CSprite",A="MN:CSprite"$s so they can
 work for both players by setting dc->color
-before drawing them.  I actually made these
+before drawing them.I actually made these
 graphics by defining a color in the <CTRL-r>
 menu, drawing the unit and deleting the color.
 
@@ -413,12 +413,12 @@ U0 PlayerPick(U8 *dirname,I64 player)
 	player,player,player);
 }
         L         ÿÿÿÿüÿÿÿ          úÿÿÿ      üÿÿÿúÿÿÿþÿÿÿ   
-           øÿÿÿ              üÿÿÿüÿÿÿ          
-ûÿÿÿûÿÿÿ   ûÿÿÿ
-   ûÿÿÿ      
-      ûÿÿÿ   
-ûÿÿÿ   ûÿÿÿûÿÿÿ
-üÿÿÿüÿÿÿ      
+           øÿÿÿ              üÿÿÿüÿÿÿ          
+ûÿÿÿûÿÿÿ   ûÿÿÿ
+   ûÿÿÿ      
+      ûÿÿÿ   
+ûÿÿÿ   ûÿÿÿûÿÿÿ
+üÿÿÿüÿÿÿ      
    üÿÿÿüÿÿÿ           G      ÿÿÿÿýÿÿÿ       
    üÿÿÿ      
 þÿÿÿüÿÿÿþÿÿÿ   
