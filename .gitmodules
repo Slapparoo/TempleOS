@@ -1,0 +1,3 @@
+[submodule "erythros"]
+	path = erythros
+	url = https://github.com/obecebo/erythros
