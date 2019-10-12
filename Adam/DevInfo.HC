@@ -3,7 +3,7 @@
 //The file was downloaded from
 //http://www.pcidatabase.com/reports.php?type=tab-delimeted
 
-#define PCI_DEV_FILE "::/Misc/PCIDevices.DD.Z"
+#define PCI_DEV_FILE "::/Misc/PCIDevices.DD"
 
 /****
 //1) Download http://www.pcidatabase.com/reports.php?type=tab-delimeted

@@ -2,7 +2,7 @@
 #help_file "::/Doc/AutoComplete"
 public extern CAutoCompleteGlbls ac;
 
-public extern Bool StandardDraw;
+public extern Bool StandardDraw;
 
 #help_index "AutoComplete/Dictionary"
 public extern CAutoCompleteDictGlbls acd;
@@ -111,8 +111,8 @@ extern U8 *StrPrintHex(U8 *dst,I64 num;I64 width);
 public extern CTextGlbls text;
 
 #help_index "Graphics"
-public extern CCanvas *screen32;
-public extern CCanvas *screen32_;
+public extern CCanvas *screenCanvas;
+public extern CCanvas *screenCanvas_;
 public extern CCanvas *screenBuffer;
 
 
@@ -781,11 +781,13 @@ public extern F64 tS(); //From SysTimerFreq.
 #help_index "Windows"
 public extern Bool WinInside(I64 x,I64 y,CTask *task=NULL,I64 border=0);
 
-public extern U0 *(*printFonts_)(U32 reg RDI *dst, reg RCX I64 scrnWidth, reg RAX U32 fg, reg RBX U32 bg);
+//public extern U0 *(*printFonts_)(U32 reg RDI *dst, reg RCX I64 scrnWidth, reg RAX U32 fg, reg RBX U32 bg);
 
 public extern U32 pal4bit[16];
 public extern U0 Copy4BitToScreen(CDC *dc);
-public extern CCanvas *CCanvasCreate(I64 width, I64 height, U32 *buffer =0);
+public extern CCanvas *CCanvasCreate32(I64 width, I64 height, U32 *buffer =0);
+public extern CCanvas *CCanvasCreate16(I64 width, I64 height, U32 *buffer =0);
+public extern CCanvas *CCanvasCreate8(I64 width, I64 height, U32 *buffer =0);
 public extern CWindow *CPanelCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
 public extern CWindow *CWindowCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
 

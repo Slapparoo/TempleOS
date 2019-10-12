@@ -18,14 +18,14 @@ public U32 pal4bit[16] =
      LTRED32, LTPURPLE32,YELLOW32, WHITE32};
 
 
-public Bool DefaultDraw = TRUE;
+public Bool DefaultDraw = TRUE;
 
 U0 Copy4BitToScreen(CDC *dc)
 {//Copy the 4bit screen to the 32bit display screen
 
 //  CDC *dc = gr.dc2; 
   U8 *src = dc->body;
-  U32 *dst = screen32_->buffer;
+  U32 *dst = screenCanvas_->buffer;
 
   U64 size = (dc->height * dc->width_internal) + src; 
 
@@ -42,7 +42,7 @@ I64 SgnI64(I64 val) {
 
 U0 UpdateScrn() {
   // 32bit buffer 32 bit pysical screen
-  MemCpyU64(screen32_->buffer,screen32->buffer,screen32->bufferSize>>3);
+  MemCpyU64(screenCanvas_->buffer,screenCanvas->buffer,screenCanvas->bufferSize>>3);
 }
 
 

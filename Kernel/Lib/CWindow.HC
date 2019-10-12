@@ -150,7 +150,8 @@ U0 CWindow_resize() {
 CWindow *CWindowCreate(CCanvas *dst, U8 * title, I64 w, I64 h) {
   CWindow *this = MAlloc(sizeof(CWindow));
 
-  this->canvas = CCanvasCreate(w, h);
+  // brook needs logic here
+  this->canvas = CCanvasCreate32(w, h);
   this->contents = CListCreate();
   this->dst = dst;
   this->title = title; // does this need a copy?
@@ -184,7 +185,7 @@ A frameless window
 CWindow *CPanelCreate(CCanvas *dst, U8 * title, I64 w, I64 h) {
   CWindow *this = MAlloc(sizeof(CWindow));
 
-  this->canvas = CCanvasCreate(w, h);
+  this->canvas = CCanvasCreate32(w, h);
   this->contents = CListCreate();
   this->dst = dst;
   this->title = title; // does this need a copy?

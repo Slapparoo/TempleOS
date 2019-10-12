@@ -3,9 +3,10 @@ U0 ScrollScrnDown(CCanvas *canvas, U64 xdist)
 {// 
   //Brook Add bounds checks
 
-  U64 sStartLoc = xdist * canvas->width;
+//  U64 sStartLoc = xdist * canvas->width;
 
-  MemCpyU32(canvas->buffer, canvas->buffer + sStartLoc, canvas->size - sStartLoc);
+//  MemCpyU32(canvas->buffer, canvas->buffer + sStartLoc, canvas->size - sStartLoc);
+   canvas->scrollScrnDown(canvas, FONT_HEIGHT, WIN_BACK);
 }
 
 U0 RawPutChar(I64 ch)
@@ -67,9 +68,7 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
     } else {
       if (text.raw_flags & RWF_SCROLL && text.raw_col && !row && !col) {
         //Scroll cached image
-        ScrollScrnDown(screen32_, FONT_HEIGHT);
-        MemSetU32(screen32_->buffer+screen32_->size -(screen32_->width*FONT_HEIGHT),
-               WIN_BACK,screen32_->width*FONT_HEIGHT);
+        screenCanvas_->scrollScrnDown(screenCanvas_, FONT_HEIGHT, WIN_BACK);
 
 	text.raw_col -= text.cols;
 	row = text.rows - 1;
@@ -77,7 +76,7 @@ See also $LK,"GrUpdateScrn",A="MN:GrUpdateScrn"$().
 
       PUSHFD
       CLI
-      screen32_->printFont(screen32_, ch&255, col*8, row*8, WIN_FG, WIN_BACK);
+      screenCanvas_->printFont(screenCanvas_, ch&255, col*8, row*8, WIN_FG, WIN_BACK);
       POPFD
 
     }

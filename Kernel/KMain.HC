@@ -82,15 +82,34 @@ U0 SysGrInit()
     text.border_chars[2] (I64)='ÄÍ³ºÚÉ¿»';
     text.border_chars[10](U32)='ÀÈÙ¼';
   } else { //if Graphics mode
-    vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp>>3;
-    screen32 = CCanvasCreate(vesa_info.width, vesa_info.height, 0);
-    screen32_ = CCanvasCreate(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
-    screenBuffer = CCanvasCreate(vesa_info.width, vesa_info.height, 0);
+    if (vesa_info.bpp == 32) {
+    	vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp>>3;
+    	screenCanvas = CCanvasCreate32(vesa_info.width, vesa_info.height, 0);
+    	screenCanvas_ = CCanvasCreate32(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
+    	screenBuffer = CCanvasCreate32(vesa_info.width, vesa_info.height, 0);
 
-    MemSetU32(screen32_->buffer, WIN_BACK, screen32_->size);
+    	MemSetU32(screenCanvas_->buffer, WIN_BACK, screenCanvas_->size);
+    } else if (vesa_info.bpp == 16) {
+	
+    	vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp>>1;
+    	screenCanvas = CCanvasCreate16(vesa_info.width, vesa_info.height, 0);
+    	screenCanvas_ = CCanvasCreate16(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
+    	screenBuffer = CCanvasCreate16(vesa_info.width, vesa_info.height, 0);
 
-    text.cols=screen32_->width/FONT_WIDTH;
-    text.rows=screen32_->height/FONT_HEIGHT;
+    	MemSetU16(screenCanvas_->buffer, WIN_BACK, screenCanvas_->size);
+    } else if (vesa_info.bpp == 8) {
+    	vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp;
+    	screenCanvas = CCanvasCreate8(vesa_info.width, vesa_info.height, 0);
+    	screenCanvas_ = CCanvasCreate8(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
+    	screenBuffer = CCanvasCreate8(vesa_info.width, vesa_info.height, 0);
+
+    	MemSetU8(screenCanvas_->buffer, 0, screenCanvas_->size);
+    }
+
+
+
+    text.cols=screenCanvas_->width/FONT_WIDTH;
+    text.rows=screenCanvas_->height/FONT_HEIGHT;
   
     text.vga_text_alias	=CAlloc((text.cols*text.rows)<<1);
     text.vga_alias	=CAlloc((text.cols*text.rows*8));

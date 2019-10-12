@@ -39,7 +39,7 @@ public U0 GrPixelUpdatedRect(U64 crect) {
   U64 x, y, yy;
   //  inefficient
   for (y = r->y1; y < r->y2; y++) {
-    yy = y * screen32->width;
+    yy = y * screenCanvas->width;
     for (x = r->x1; x < r->x2; x++) {
       GrPixelUpdatedByIdx(yy + x);
     }
@@ -50,7 +50,7 @@ public U0 GrPixelUpdatedRect(U64 crect) {
 
 
 public U0 GrPixelUpdated(U64 x, U64 y) {
-  GrPixelUpdatedByIdx(y * screen32->width + x);
+  GrPixelUpdatedByIdx(y * screenCanvas->width + x);
   GR_UP_CNT3++; 
 }
 
@@ -60,7 +60,7 @@ Calculate the pixels which have changed
 public U0 GrCalcScrnUpdates() {
   // compare the previous screen to the current screen
   U16 *scrn = gr.dc2->body, *lstScrn = screenCache;
-  U64 difsSize = screen32->width*screen32->height>>1, i;
+  U64 difsSize = screenCanvas->width*screenCanvas->height>>1, i;
 
   for (i = 0; i < difsSize; i++) {
     if (*scrn != *lstScrn) {
@@ -75,9 +75,9 @@ public U0 GrCalcScrnUpdates() {
 Transfer just the changes to the Video Buffer (LFB)
 */
 public U0 GrUpdateChanged(U64 a=0) {
-  U64 difsSize = screen32->width*screen32->height>>7;
+  U64 difsSize = screenCanvas->width*screenCanvas->height>>7;
   U64 i = 0, ix, bt;
-  U64 *src = screenBuffer->buffer, *dst = screen32_->buffer;
+  U64 *src = screenBuffer->buffer, *dst = screenCanvas_->buffer;
 
   for (;i < difsSize; i++) {
     U64 changes = gr.pxlsUpd[i] | gr.lstPxlsUpd[i];

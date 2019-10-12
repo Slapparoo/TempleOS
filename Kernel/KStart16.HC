@@ -57,13 +57,17 @@ SYS_VESA_MODE: DU16   0;
 SYS_VESA_BFSZ: DU64   0;
 #assert $$-SYS_VESA==sizeof(CVesaInfo)
 
-MODES_ARRY::    DU8 4960 DUP(0); // modes[20];
+//MODES_ARRY::    DU8 4960 DUP(0); // modes[20];
+MODES_ARRY::    DU8 9920 DUP(0); // modes[40];
 
 // should have an assert
 
 
 SYS_SCRN_WIDTH:  DU16 1024;  // requested width
-SYS_SCRN_HEIGHT: DU16 768;  // requested height
+SYS_SCRN_HEIGHT: DU16 768;  // requested height
+SYS_SCRN_BPP:    DU16 32;  // requested height
+//SYS_SCRN_BPP:    DU16 8;  // requested height
+
 
 //SYS_SCRN_WIDTH:  DU16 640;  // requested width
 //SYS_SCRN_HEIGHT: DU16 480;  // requested height
@@ -136,7 +140,7 @@ GET_RIP:	POP	BX
         PUSH    DS
         POP     ES
         MOV     DI, MODES_ARRY
-        MOV     BX, 20
+        MOV     BX, 40
         MOV     CX, 0x40FF
 // array of U16 support modes    
 @@06: // loop
@@ -159,15 +163,27 @@ GET_RIP:	POP	BX
 	CMP	AX,0x004F
 	JNE	@@06		// don't add to list
 
-        MOV     AL, 0x20        // 32 bpp
-        CMP     [DI+25], AL     // only want 32bit
-	JNE	@@06		// don't add to list
+
+// filter 24 bit
+        MOV     AL, 24  
+        CMP     [DI+25], AL   
+	JE	@@06
+// filter 15 bit
+        MOV     AL, 15  
+        CMP     [DI+25], AL   
+	JE	@@06
+            
 
 
 // check for our requested mode
+        MOV     AL, [SYS_SCRN_BPP]  
+        CMP     [DI+25], AL   
+	JNE	@@06A
+
         MOV     AX, [SYS_SCRN_WIDTH]
         CMP     [DI+18], AX    
         JNE     @@06A
+
         MOV     AX, [SYS_SCRN_HEIGHT]
         CMP     [DI+20], AX    
         JNE     @@06A

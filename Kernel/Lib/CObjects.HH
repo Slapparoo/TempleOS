@@ -65,6 +65,7 @@ public class CCanvas {
   U0 (*cleaned)(CCanvas *this);
   U0 (*pushUpdates)(CCanvas *this, CCanvas *dst, I64 x, I64 y); 
   U0 (*free)(CCanvas *this);
+  U0 (*scrollScrnDown)(CCanvas *this, U64 xdist, U32 bgColor);
 };
 
 
@@ -157,4 +158,3 @@ public class CContentText:CContent {
   U32 bg, fg;
 };
 
-

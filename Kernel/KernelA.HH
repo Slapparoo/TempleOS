@@ -3979,7 +3979,7 @@ public class CVesaInfo
 
 
 #help_index "Graphics/VBE2"
-public class CVBE2Info
+public class CVBE2Info
 {
   U8 signature[4];
   U16 version;
@@ -4069,7 +4069,7 @@ public class CWindow24
 
 #define WIN_BORDER      WHITE32 
 #define WIN_PANEL       0x222266
-#define WIN_BACK        CHARCOAL32
+#define WIN_BACK        CHARCOAL32
 #define WIN_FG          0xEEEEEE
 #define WIN_TITLE_COLOR WHITE32
 #define SYS_BACK        DPOCEAN32
@@ -4145,6 +4145,11 @@ public class CCanvas {
   U0 (*free)(CCanvas *this);
   U0 (*printAsmFont)(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg);
   U0 (*UpdateScrnRegion)(I64 crect);
+  U0 (*scrollScrnDown)(CCanvas *this, U64 xdist, U32 hgColor);
+  U0 (*fullScrnDraw)(CCanvas *this, CCanvas *dest, U8* grBody, U8* screenCache);
+  U0 (*calcScrnUpdates)(CCanvas *this, CCanvas *dest, U8* grBody, U8* screenCache);
+
+
 };
 
 

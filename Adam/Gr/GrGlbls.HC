@@ -46,7 +46,7 @@ public class CGrGlbls
 } gr;
 
 
-public U8 *screenCache = MAlloc(screen32->width * screen32->height);
+public U8 *screenCache = MAlloc(screenCanvas->size);
 
 public extern U0 GrCalcScrnUpdates();
 public extern U0 GrUpdateChanged(U64 a);
@@ -66,9 +66,9 @@ if (vesa_info.return_code == 0x4F) {
   textrows = 25;
 }
 
-DefinePrint("GR_WIDTH","%d",screen32->width);
+DefinePrint("GR_WIDTH","%d",screenCanvas->width);
 HashPublic("GR_WIDTH",HTT_DEFINE_STR);
-DefinePrint("GR_HEIGHT","%d",screen32->height);
+DefinePrint("GR_HEIGHT","%d",screenCanvas->height);
 HashPublic("GR_HEIGHT",HTT_DEFINE_STR);
 
 #help_index "Char;TextBase Layer/Char"

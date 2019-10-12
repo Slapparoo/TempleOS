@@ -1,7 +1,7 @@
 /*
 Old School Object orientation
 
-canvas/screen object 32 bit
+canvas/screen object 32 bit, 16, 8, 4 (which is 8)
 
 2D bitmap drawing surface
 
@@ -200,7 +200,7 @@ U0 CCanvas_free(CCanvas *this) {
   "free at last\n";
 }
 
-U0 CCanvas_setPixel(CCanvas *this, I64 x, I64 y, U32 color) {
+U0 CCanvas_setPixel32(CCanvas *this, I64 x, I64 y, U32 color) {
   if (!CRect_pxinside(this->clipRct, x, y)) {
     return;
   }
@@ -209,7 +209,36 @@ U0 CCanvas_setPixel(CCanvas *this, I64 x, I64 y, U32 color) {
   this->update(this, x, y, x+1, y+1);
 }
 
+U0 CCanvas_setPixel16(CCanvas *this, I64 x, I64 y, U32 color) {
+  if (!CRect_pxinside(this->clipRct, x, y)) {
+    return;
+  }
+  
+  U16 * b = this->buffer;
 
+  b[this->width * y + x] = color&0xFFFF;
+  this->update(this, x, y, x+1, y+1);
+}
+
+U0 CCanvas_setPixel8(CCanvas *this, I64 x, I64 y, U32 color) {
+  if (!CRect_pxinside(this->clipRct, x, y)) {
+    return;
+  }
+
+  U8 * b = this->buffer;
+  b[this->width * y + x] = color&0xFF;
+  this->update(this, x, y, x+1, y+1);
+}
+
+U0 CCanvas_setPixel4(CCanvas *this, I64 x, I64 y, U32 color) {
+  if (!CRect_pxinside(this->clipRct, x, y)) {
+    return;
+  }
+
+  U8 * b = this->buffer;
+  b[this->width * y + x] = color&0xF;
+  this->update(this, x, y, x+1, y+1);
+}
 
 
 
@@ -220,7 +249,7 @@ U0 CCanvas_setPixel(CCanvas *this, I64 x, I64 y, U32 color) {
 // is controled by XF_SOURCE
 
 // put the pixel at the location by appliting the transform
-U0 _CCanvas_tranformPixel(U32 *dst, U32 color) {
+U0 _CCanvas_tranformPixel32(U32 *dst, U32 color) {
   // Brook no bounds pixel direct
   // brook this needs asm
   U32 xform = color&XF_TRANSP,
@@ -309,7 +338,7 @@ U0 CCanvas_cleaned(CCanvas *this) {
   this->dirtyRct = 0;
 }
 
-U0 CCanvas_printFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
+U0 CCanvas_printFont32(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   // Brook change to dynamic font
   U64 letterT = text.font[letter&0xFF],
    count, rowInc = this->width - FONT_WIDTH; // FONT_WIDTH
@@ -351,13 +380,46 @@ U0 CCanvas_printFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   _CCanvas_update(this, intersect);
 }
 
-U0 CCanvas_printAsmFont(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
-  // no clipping
-//  (printFonts_[letter&0xFF])(&this->buffer[(this->width * y) + x], this->width<<2, fg, bg);
-//  CCanvas_printFont(this, letter, x, y, fg, bg);
-//  _CCanvas_update(this, CRectCreate(x, y, x+8, y+8));
-}
 
+U0 CCanvas_printFont8(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
+  // Brook change to dynamic font
+  U64 letterT = text.font[letter&0xFF],
+   count, rowInc = this->width - FONT_WIDTH; // FONT_WIDTH
+  U8 *dst;
+  dst = this->buffer;
+  dst += this->width * y + x;
+
+  U8 bgc = bg&0xFF, fgc = fg&0xFF;
+
+  U64 fRect = CRectCreate(x, y, x+8, y+8);
+  U64 intersect = CRect_intersect(fRect,this->clipRct);
+  if (!intersect) {
+    // completely outside the the area
+    return;
+  }
+
+  // x,y are tracked for cliprect
+
+  for (count = 0; count < 64; count++) {
+  // FONT_WIDTH x FONT_HEIGHT
+    if (letterT & 0x1) {
+      *dst = fgc;
+      dst++;
+    } else {
+      *dst = bgc;
+      dst++;
+    }
+
+    if (count & 0x7 == 0x7) {
+      dst += rowInc;
+      y++;
+      x-=8;
+    }
+    letterT = letterT>>1;
+  }
+  // Brook dynamic font
+  _CCanvas_update(this, intersect);
+}
 
 
 
@@ -418,6 +480,48 @@ U0 CCanvas_fillrect(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2, U32 color) {
 //  this->update(this, x1, y1, x2, y2);
   _CCanvas_update(this, intersect);
 }
+
+U0 CCanvas_ScrollScrnDown32(CCanvas *this, U64 xdist, U32 bgColor)
+{// 
+  //Brook Add bounds checks
+
+  U64 sStartLoc = xdist * this->width;
+
+  MemCpyU32(this->buffer, this->buffer + sStartLoc, this->size - sStartLoc);
+
+
+  MemSetU32(this->buffer + this->size - (this->width * FONT_HEIGHT),
+               bgColor, this->width * FONT_HEIGHT);
+}
+
+U0 CCanvas_ScrollScrnDown16(CCanvas *this, U64 xdist, U32 bgColor)
+{// 
+  //Brook Add bounds checks
+
+  U64 sStartLoc = xdist * this->width;
+
+  MemCpyU16(this->buffer, this->buffer + sStartLoc, this->size - sStartLoc);
+
+
+  MemSetU16(this->buffer + this->size - (this->width * FONT_HEIGHT),
+               bgColor&0xFFFF, this->width * FONT_HEIGHT);
+}
+
+U0 CCanvas_ScrollScrnDown8(CCanvas *this, U64 xdist, U32 bgColor)
+{// 
+  //Brook Add bounds checks
+
+  U64 sStartLoc = xdist * this->width;
+
+  U8 *b = this->buffer;
+
+  MemCpyU8(b, b + sStartLoc, this->size - sStartLoc);
+
+
+  MemSetU8(b + this->size - (this->width * FONT_HEIGHT),
+               bgColor&0xFF, this->width * FONT_HEIGHT);
+}
+
 
 
 U0 CCanvas_line(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2, U32 color) {
@@ -596,18 +700,18 @@ U0 CCanvas_pushUpdates(CCanvas *this, CCanvas *dst, I64 x, I64 y) {
 public U0 _CCanvas_UpdateScrnRegion(U64 crect)
 {// 
   // x1, y1, x2, y2 aligned copy
-  U64 intersect = CRect_intersect(crect, screen32->clipRct);
+  U64 intersect = CRect_intersect(crect, screenCanvas->clipRct);
   CRect * cr = &intersect;
 //  CRect * cr = &crect;
 
   U64 row = (cr->x2 - cr->x1),
-   rowAdd = screen32->width,
-   startLoc = ((cr->y1 * screen32->width) + cr->x1),
+   rowAdd = screenCanvas->width,
+   startLoc = ((cr->y1 * screenCanvas->width) + cr->x1),
    yy;
   U32 *sBuffer, *dAddress;
 
-  dAddress = &screen32_->buffer[startLoc];
-  sBuffer = &screen32->buffer[startLoc];
+  dAddress = &screenCanvas_->buffer[startLoc];
+  sBuffer = &screenCanvas->buffer[startLoc];
 
   for (yy = cr->y1; yy < cr->y2; yy++) {
     MemCpyU32(dAddress,sBuffer,row);
@@ -616,7 +720,100 @@ public U0 _CCanvas_UpdateScrnRegion(U64 crect)
   }
 }
 
-public CCanvas *CCanvasCreate(I64 width, I64 height, U32 *buffer =0) {
+
+/*
+Calculate the pixels which have changed
+*/
+public U0 CCanvas_CalcScrnUpdates32(CCanvas* this, CCanvas* dest, U8* grBody, U8* screenCache) {
+
+  // TODO - this needs work - it is making tons of assumptions about the size 
+  // of the canvases being equal
+  // and that there is only one screencache
+
+
+  // compare the previous screen to the current screen
+  // this works on 2 pixels at a time
+  
+  // this works on the assuption that writing to
+  // video memory is slower than regular memory
+
+  U16 *scrn = grBody, *lstScrn = screenCache;
+  U64 difsSize = this->size>>1;
+  U64 *src = this->buffer, *dst = dest->buffer;
+
+  I64 i = difsSize-1;
+
+  for (; i >= 0; i--) {
+    if (scrn[i] != lstScrn[i]) {
+      dst[i] = src[i];
+    }
+  }
+
+  MemCpyU64(screenCache, grBody, dest->size>>3);
+
+  if (LBtr(&sys_semas[SEMA_FLUSH_VGA_IMAGE],0)) {
+    MemCpyU64(dest->buffer, this->buffer, this->size>>1);
+  }
+}
+
+// neeeds to be extern now there are multiple declrarions
+U32 pal32[16] = 
+    {BLACK32, BLUE32,    GREEN32,  CYAN32,
+     0x002288,PURPLE32,  BROWN32,  LTGREY32,
+     DKGREY32,LTBLUE32,  LTGREEN32,LTCYAN32,
+     LTRED32, LTPURPLE32,YELLOW32, WHITE32};
+
+
+U0 CCanvas_FullScrnDraw32(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenCache) {
+  //Copy the 4bit screen to the 32bit display screen
+  // fudging it;
+
+  U32 *dst = this->buffer;
+  U8 *src = grBody, j;
+  
+  U64 size = src + this->size; 
+  I32 i;
+
+
+  for (i = this->size -1; i > 0; i--, src++, dst++) {
+      *dst = pal32[*src];
+  }
+
+  this->calcScrnUpdates(this, dest, grBody, screenCache);
+}
+
+U0 CCanvas_FullScrnDraw16(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenCache) {
+  //Copy the 4bit screen to the 32bit display screen
+  // fudging it;
+
+/*
+
+  U64 *dst = this->buffer;
+  U8 *src = grBody, j;
+  
+  U64 size = src + this->size; 
+
+  for (src = grBody; src < size; src++, dst++) {
+    *dst = pal32[*src++ & 0xF] | pal32[*src & 0xF]<<32;
+  }
+
+  this->calcScrnUpdates(this, dest, grBody, screenCache);
+*/
+}
+
+U0 CCanvas_FullScrnDraw8(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenCache) {
+  //Copy the 4bit screen to the 32bit display screen
+  // fudging it;
+
+  MemCpyU64(dest->buffer, grBody, this->size>>3);
+
+//  this->calcScrnUpdates(this, dest, grBody, screenCache);
+}
+
+
+
+
+public CCanvas *CCanvasCreate32(I64 width, I64 height, U32 *buffer =0) {
 
   CCanvas *this = MAlloc(sizeof(CCanvas));
 
@@ -641,25 +838,116 @@ public CCanvas *CCanvasCreate(I64 width, I64 height, U32 *buffer =0) {
   this->clipRct = CRectCreate(0, 0, width, height);
   
 
-  this->setPixel=&CCanvas_setPixel;  
-  this->printFont=&CCanvas_printFont;  
-  this->printString=&CCanvas_printString;  
-  this->fillrect=&CCanvas_fillrect;  
-  this->line=&CCanvas_line;
-  this->copyFrom=&CCanvas_copyFrom;
-  this->copyRegion=&CCanvas_copyRegion;
-  this->update=&CCanvas_update;
-  this->cleaned=&CCanvas_cleaned;
-  this->pushUpdates=&CCanvas_pushUpdates;
-  this->free=&CCanvas_free;
- // this->printAsmFont=&CCanvas_printAsmFont;
-  this->printAsmFont=&CCanvas_printFont;
-  this->UpdateScrnRegion=&_CCanvas_UpdateScrnRegion;
- 
+  this->setPixel = &CCanvas_setPixel32;  
+  this->printFont = &CCanvas_printFont32;  
+  this->printString = &CCanvas_printString;  
+  this->fillrect = &CCanvas_fillrect;  
+  this->line = &CCanvas_line;
+  this->copyFrom = &CCanvas_copyFrom;
+  this->copyRegion = &CCanvas_copyRegion;
+  this->update = &CCanvas_update;
+  this->cleaned = &CCanvas_cleaned;
+  this->pushUpdates = &CCanvas_pushUpdates;
+  this->free = &CCanvas_free;
+  this->UpdateScrnRegion = &_CCanvas_UpdateScrnRegion;
+  this->scrollScrnDown = &CCanvas_ScrollScrnDown32;
+  this->calcScrnUpdates = &CCanvas_CalcScrnUpdates32;
+  this->fullScrnDraw = &CCanvas_FullScrnDraw32;
+
 
   return this;
 }
 
+
+public CCanvas *CCanvasCreate16(I64 width, I64 height, U32 *buffer =0) {
+
+  CCanvas *this = MAlloc(sizeof(CCanvas));
+
+  // Brook set max for the canvas don't need to be bigger than the screen
+
+  this->width = width;
+  this->height = height;
+  this->bufferSize = (width*height)<<1;
+  if (buffer) {
+//    "Owns buffer=false %p\n", buffer;
+    this->buffer=buffer;
+    this->ownsBuffer=FALSE;
+  } else {
+    this->buffer=MAlloc(this->bufferSize);
+//    "Allocate buffer %p\n", this->buffer;
+    this->ownsBuffer=TRUE;
+  }
+  this->size = width*height;
+
+  this->updated = FALSE;
+  this->dirtyRct = 0;
+  this->clipRct = CRectCreate(0, 0, width, height);
+  
+
+  this->setPixel = &CCanvas_setPixel16;  
+//  this->printFont = &CCanvas_printFont16;  
+  this->printString = &CCanvas_printString;  
+  this->fillrect = &CCanvas_fillrect;  
+  this->line = &CCanvas_line;
+  this->copyFrom = &CCanvas_copyFrom;
+  this->copyRegion = &CCanvas_copyRegion;
+  this->update = &CCanvas_update;
+  this->cleaned = &CCanvas_cleaned;
+  this->pushUpdates = &CCanvas_pushUpdates;
+  this->free = &CCanvas_free;
+  this->UpdateScrnRegion = &_CCanvas_UpdateScrnRegion;
+  this->scrollScrnDown = &CCanvas_ScrollScrnDown16;
+//  this->calcScrnUpdates = &CCanvas_CalcScrnUpdates16;
+//  this->fullScrnDraw = &CCanvas_FullScrnDraw16;
+
+
+  return this;
+}
+
+public CCanvas *CCanvasCreate8(I64 width, I64 height, U32 *buffer =0) {
+
+  CCanvas *this = MAlloc(sizeof(CCanvas));
+
+  // Brook set max for the canvas don't need to be bigger than the screen
+
+  this->width = width;
+  this->height = height;
+  this->bufferSize = (width*height);
+  if (buffer) {
+//    "Owns buffer=false %p\n", buffer;
+    this->buffer=buffer;
+    this->ownsBuffer=FALSE;
+  } else {
+    this->buffer=MAlloc(this->bufferSize);
+//    "Allocate buffer %p\n", this->buffer;
+    this->ownsBuffer=TRUE;
+  }
+  this->size = width*height;
+
+  this->updated = FALSE;
+  this->dirtyRct = 0;
+  this->clipRct = CRectCreate(0, 0, width, height);
+  
+
+  this->setPixel = &CCanvas_setPixel8;  
+  this->printFont = &CCanvas_printFont8;  
+  this->printString = &CCanvas_printString;  
+  this->fillrect = &CCanvas_fillrect;  
+  this->line = &CCanvas_line;
+  this->copyFrom = &CCanvas_copyFrom;
+  this->copyRegion = &CCanvas_copyRegion;
+  this->update = &CCanvas_update;
+  this->cleaned = &CCanvas_cleaned;
+  this->pushUpdates = &CCanvas_pushUpdates;
+  this->free = &CCanvas_free;
+  this->UpdateScrnRegion = &_CCanvas_UpdateScrnRegion;
+  this->scrollScrnDown = &CCanvas_ScrollScrnDown8;
+//  this->calcScrnUpdates = &CCanvas_CalcScrnUpdates8;
+  this->fullScrnDraw = &CCanvas_FullScrnDraw8;
+
+
+  return this;
+}
 
 
 U0 CCanvas_test1(CCanvas *c) {
@@ -676,7 +964,7 @@ U0 CCanvas_test1(CCanvas *c) {
    CRect_print(c->dirtyRct);
 
 
-   c->pushUpdates(c, screen32_, 0, 0);
+   c->pushUpdates(c, screenCanvas_, 0, 0);
 
 
    for (i = 70; i < 600; i+=10) {
@@ -684,13 +972,20 @@ U0 CCanvas_test1(CCanvas *c) {
    }
    CRect_print(c->dirtyRct);
 
-   c->pushUpdates(c, screen32_, 0, 0);
+   c->pushUpdates(c, screenCanvas_, 0, 0);
 
    CRect_print(c->dirtyRct);
 
 //   I64 dr = CRectCreate(900, 50, 1000,600);   
 //   _CCanvas_UpdateScrnRegion(dr);
 }
+
+
+
+U0 CCanvas_Test8BitFont(CCanvas *c) {
+   c->printString(c, "text line", 900, 60, 0xFF, 0);
+}
+
 
 
 U0 CRect_test1() {

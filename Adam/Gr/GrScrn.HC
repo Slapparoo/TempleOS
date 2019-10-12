@@ -17,7 +17,7 @@ U0 GrUpdateTaskODEs(CTask *task)
 
 U0 GrUpdateTaskWin(CTask *task)
 { //Draw a win.  Only Core0 tasks have a win.
-  CDC *dc;
+  CDC *dc;
   CD3I64 saved_scroll;
   sys_task_being_scrn_updated=task;
   try {
@@ -432,11 +432,11 @@ U0 GrUpdateGr32ModeText()
         fg2 = pal[fg];
         bg2 = pal[bg];
 
-        screen32->printFont(screen32, cur_ch&0xFF, x<<3, yy, fg2, bg2);
+        screenCanvas->printFont(screenCanvas, cur_ch&0xFF, x<<3, yy, fg2, bg2);
         *dst2++=cur_ch;
       }
     }
-    MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
+    MemCpyU64(screenCanvas_->buffer, screenCanvas->buffer, screenCanvas->bufferSize>>3);
 
   } else {
     // only update the changes
@@ -460,8 +460,8 @@ U0 GrUpdateGr32ModeText()
           bg2 = pal[bg];
 
           xx=x<<3;
-          screen32->printFont(screen32, cur_ch&0xFF, xx, yy, fg2, bg2);
-          screen32->pushUpdates(screen32, screen32_, 0, 0);
+          screenCanvas->printFont(screenCanvas, cur_ch&0xFF, xx, yy, fg2, bg2);
+          screenCanvas->pushUpdates(screenCanvas, screenCanvas_, 0, 0);
 
           *dst2++=cur_ch&0xFFFF;
           updCnt++;
@@ -484,60 +484,6 @@ U0 GrClearDC() {
     *src=0;
   }
 }
-
-/*
-Calculate the pixels which have changed
-*/
-public U0 GrCalcScrnUpdates(U64 a=0) {
-  // compare the previous screen to the current screen
-  // this works on 2 pixels at a time
-  
-  // this works on the assuption that writing to
-  // video memory is slower than regular memory
-
-  U16 *scrn = gr.dc2->body, *lstScrn = screenCache;
-  U64 difsSize = screen32->width*screen32->height>>1;
-  U64 *src = screen32->buffer, *dst = screen32_->buffer;
-
-  I64 i = difsSize-1;
-
-  for (; i >= 0; i--) {
-    if (scrn[i] != lstScrn[i]) {
-      dst[i] = src[i];
-    }
-  }
-
-  MemCpyU64(screenCache, gr.dc2->body, difsSize>>2);
-}
-
-
-U0 GrCopyScreenBuffer(U64 a = 0) {
-  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
-}
-
-
-
-U0 GrFullScreenDraw32(U64 x=0){
-  //Copy the 4bit screen to the 32bit display screen
-  // fudging it;
-
-  U64 *dst = screen32->buffer;
-  CDC *dc=gr.dc2; // GrUpdateGraphics32
-  U64 len = dc->height*dc->width_internal;
-  U8 *src =dc->body, j;
-  
-  U64 size=src+len; 
-
-  for (src = dc->body; src < size; src++, dst++) {
-    *dst = pal[*src++ & 0xF] | pal[*src & 0xF]<<32;
-  }
-
-  GrCalcScrnUpdates;
-//  GrCopyScreenBuffer;
-//  MemCpyU64(screen32_->buffer, screen32->buffer, screen32->bufferSize>>3);
-
-}
-
 
 U0 GrUpdateVGAGraphics()
 {//Update Graphic Card
@@ -596,10 +542,10 @@ U0 GrUpdateGr32Mouse() {
        PUSHFD
        CLI
        if (lastMouse != -1) {
-         screen32_->UpdateScrnRegion(lastMouse);
+         screenCanvas_->UpdateScrnRegion(lastMouse);
        }
       
-       screen32_->printFont(screen32_, 'þ', x, y, 0xFFFFFF, 0);
+       screenCanvas_->printFont(screenCanvas_, 'þ', x, y, 0xFFFFFF, 0);
        POPFD
        
        lastMouse = thisMouse;
@@ -637,7 +583,7 @@ U0 GrUpdateScrn(U64 a=0)
     DCBlotColor4(gr.dc1->body,gr.dc2->body,gr.dc_cache->body,
 	  gr.dc2->height*gr.dc2->width_internal>>3);
 
-    GrFullScreenDraw32;
+    screenCanvas->fullScrnDraw(screenCanvas, screenCanvas_, gr.dc2->body, screenCache);
   } else if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode {
     GrUpdateTextModeText;
   } else {

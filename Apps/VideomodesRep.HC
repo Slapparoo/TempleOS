@@ -21,10 +21,10 @@ for ( i = 0; i < 50; ++i) {
     "$$GREEN$$";
   }
   if (vesa_modes[i].bpp == 16) {
-    "$$YELLOW$$";
+    "$$BLACK$$";
   }
   if (vesa_modes[i].bpp < 16) {
-    "$$LTGREEN$$";
+    "$$GREEN$$";
   }
   if (vesa_modes[i].mode == vesa_info.mode) {
     "$$BG,LTGRAY$$ *";
@@ -33,7 +33,7 @@ for ( i = 0; i < 50; ++i) {
   }
 
 
-  "Mode 0x%p", vesa_modes[i].mode;
+  "Mode 0x%p", vesa_modes[i].mode;
   " w/h/bpp %4d, %4d, %2d %b\n",vesa_modes[i].width, vesa_modes[i].height, vesa_modes[i].bpp, vesa_modes[i].attributes;
   "$$FG$$$$BG$$";
   

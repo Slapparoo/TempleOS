@@ -210,10 +210,10 @@ U0 GrInit2()
   gr.zoomed_dc	 =DCNew(GR_WIDTH,GR_HEIGHT); //4-bit
   gr.zoomed_dc->flags|=DCF_SCRN_BITMAP;
 
-  gr.pxlsUpd = MAlloc(screen32->width*screen32->height>>4);
-  gr.lstPxlsUpd = MAlloc(screen32->width*screen32->height>>4);
+  gr.pxlsUpd = MAlloc(screenCanvas->width*screenCanvas->height>>4);
+  gr.lstPxlsUpd = MAlloc(screenCanvas->width*screenCanvas->height>>4);
   
-  MemSetU8(gr.lstPxlsUpd, 0xFF, screen32->width*screen32->height>>4);
+  MemSetU8(gr.lstPxlsUpd, 0xFF, screenCanvas->width*screenCanvas->height>>4);
 
 }
 
