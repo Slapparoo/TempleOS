@@ -19,7 +19,7 @@ HashTablePurge(adam_task->hash_table);
 
 #include "/Adam/MakeAdam"
 
-//Dbg("Type 'G;'");
+//Dbg("Type 'G;'");
 DocTermNew;
 WinVert(2,10);
 
