@@ -4069,7 +4069,7 @@ public class CWindow24
 
 #define WIN_BORDER      WHITE32 
 #define WIN_PANEL       0x222266
-#define WIN_BACK        CHARCOAL32
+#define WIN_BACK        CHARCOAL32
 #define WIN_FG          0xEEEEEE
 #define WIN_TITLE_COLOR WHITE32
 #define SYS_BACK        DPOCEAN32
@@ -4151,7 +4151,7 @@ public class CCanvas {
 
 
 };
-
+/*
 
 public class CList {
   I64 length; // number of items
@@ -4175,9 +4175,9 @@ public class CList {
 
 #define LIST_INITIAL_SIZE 16
 #define LIST_GROWBY_SIZE 16    // not a perfect science
+*/
 
-
-
+/*
 
 public class CWindow 
 {
@@ -4212,10 +4212,10 @@ public class CWindow
   // selected, close, move, redraw, keyevents, mouse, timer, callbacks, sync....
   // Brook build a message que
 };
-
+*/
 
 // Brook this class is nowhere near complete
-
+/*
 public class CContent {
   Bool visible;
   Bool updated; // managed cleared after draw
@@ -4241,6 +4241,6 @@ public class CContentText:CContent {
   U8 *string;  // rudimentary
   U32 bg, fg;
 };
-
+*/
 
 #help_index ""

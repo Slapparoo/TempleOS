@@ -380,6 +380,48 @@ U0 CCanvas_printFont32(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   _CCanvas_update(this, intersect);
 }
 
+U0 CCanvas_printFont16(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
+  // Brook change to dynamic font
+  U64 letterT = text.font[letter&0xFF],
+   count, rowInc = this->width - FONT_WIDTH; // FONT_WIDTH
+  U16 *dst;
+  dst = this->buffer;
+  dst += this->width * y + x;
+
+  U16 bgc = bg&0xFFFF, fgc = fg&0xFFFF;
+
+  U64 fRect = CRectCreate(x, y, x+8, y+8);
+  U64 intersect = CRect_intersect(fRect,this->clipRct);
+  if (!intersect) {
+    // completely outside the the area
+    return;
+  }
+
+  // x,y are tracked for cliprect
+
+  for (count = 0; count < 64; count++) {
+  // FONT_WIDTH x FONT_HEIGHT
+    if (letterT & 0x1) {
+      *dst = fgc;
+      dst++;
+    } else {
+      *dst = bgc;
+      dst++;
+    }
+
+    if (count & 0x7 == 0x7) {
+      dst += rowInc;
+      y++;
+      x-=8;
+    }
+    letterT = letterT>>1;
+  }
+  // Brook dynamic font
+  _CCanvas_update(this, intersect);
+}
+
+
+
 
 U0 CCanvas_printFont8(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   // Brook change to dynamic font
@@ -420,7 +462,6 @@ U0 CCanvas_printFont8(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   // Brook dynamic font
   _CCanvas_update(this, intersect);
 }
-
 
 
 U0 CCanvas_printString(CCanvas *this, U8 *str, I64 x, I64 y, U32 fg, U32 bg) {
@@ -500,10 +541,12 @@ U0 CCanvas_ScrollScrnDown16(CCanvas *this, U64 xdist, U32 bgColor)
 
   U64 sStartLoc = xdist * this->width;
 
-  MemCpyU16(this->buffer, this->buffer + sStartLoc, this->size - sStartLoc);
+  U16 *b = this->buffer;
+
+  MemCpyU16(b, b + sStartLoc, this->size - sStartLoc);
 
 
-  MemSetU16(this->buffer + this->size - (this->width * FONT_HEIGHT),
+  MemSetU16(b + this->size - (this->width * FONT_HEIGHT),
                bgColor&0xFFFF, this->width * FONT_HEIGHT);
 }
 
@@ -756,6 +799,44 @@ public U0 CCanvas_CalcScrnUpdates32(CCanvas* this, CCanvas* dest, U8* grBody, U8
   }
 }
 
+
+/*
+Calculate the pixels which have changed
+*/
+public U0 CCanvas_CalcScrnUpdates16(CCanvas* this, CCanvas* dest, U8* grBody, U8* screenCache) {
+
+  // TODO - this needs work - it is making tons of assumptions about the size 
+  // of the canvases being equal
+  // and that there is only one screencache
+
+
+  // compare the previous screen to the current screen
+  // this works on 2 pixels at a time
+  
+  // this works on the assuption that writing to
+  // video memory is slower than regular memory
+
+  U16 *scrn = grBody, *lstScrn = screenCache;
+  U64 difsSize = this->size>>1;
+  U32 *src = this->buffer, *dst = dest->buffer;
+
+  I64 i = difsSize-1;
+
+  for (; i >= 0; i--) {
+    if (scrn[i] != lstScrn[i]) {
+      dst[i] = src[i];
+    }
+  }
+
+  MemCpyU64(screenCache, grBody, dest->size>>3);
+
+  if (LBtr(&sys_semas[SEMA_FLUSH_VGA_IMAGE],0)) {
+    MemCpyU64(dest->buffer, this->buffer, this->size>>2);
+  }
+}
+
+
+
 // neeeds to be extern now there are multiple declrarions
 U32 pal32[16] = 
     {BLACK32, BLUE32,    GREEN32,  CYAN32,
@@ -769,6 +850,31 @@ U0 CCanvas_FullScrnDraw32(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenC
   // fudging it;
 
   U32 *dst = this->buffer;
+  U8 *src = grBody;
+  
+//  U64 size = src + this->size; 
+  I32 i;
+
+
+  for (i = this->size -1; i > 0; i--, src++, dst++) {
+      *dst = pal32[*src];
+  }
+
+  this->calcScrnUpdates(this, dest, grBody, screenCache);
+}
+
+// neeeds to be extern now there are multiple declrarions
+U16 pal16[16] = 
+    {0x0000, 0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666, 0x7777, 
+     0x8888, 0x9999, 0xAAAA, 0xBBBB, 0xCCCC, 0xDDDD, 0xEEEE, 0xFFFF};
+
+
+U0 CCanvas_FullScrnDraw16(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenCache) {
+  //Copy the 4bit screen to the 32bit display screen
+  // fudging it;
+
+
+  U16 *dst = this->buffer;
   U8 *src = grBody, j;
   
   U64 size = src + this->size; 
@@ -776,41 +882,28 @@ U0 CCanvas_FullScrnDraw32(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenC
 
 
   for (i = this->size -1; i > 0; i--, src++, dst++) {
-      *dst = pal32[*src];
-  }
-
-  this->calcScrnUpdates(this, dest, grBody, screenCache);
-}
-
-U0 CCanvas_FullScrnDraw16(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenCache) {
-  //Copy the 4bit screen to the 32bit display screen
-  // fudging it;
-
-/*
-
-  U64 *dst = this->buffer;
-  U8 *src = grBody, j;
-  
-  U64 size = src + this->size; 
-
-  for (src = grBody; src < size; src++, dst++) {
-    *dst = pal32[*src++ & 0xF] | pal32[*src & 0xF]<<32;
+      *dst = pal16[*src];
   }
 
-  this->calcScrnUpdates(this, dest, grBody, screenCache);
-*/
+  CCanvas_CalcScrnUpdates16(this, dest, grBody, screenCache);
 }
+
+
+#exe {
+  Option(OPTf_WARN_UNUSED_VAR,OFF);
+};
+
 
 U0 CCanvas_FullScrnDraw8(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenCache) {
-  //Copy the 4bit screen to the 32bit display screen
-  // fudging it;
-
-  MemCpyU64(dest->buffer, grBody, this->size>>3);
-
-//  this->calcScrnUpdates(this, dest, grBody, screenCache);
+  if (this);
+  if (screenCache);
+
+  MemCpyU64(dest->buffer, grBody, dest->size>>3); 
 }
 
-
+#exe {
+  Option(OPTf_WARN_UNUSED_VAR,ON);
+};
 
 
 public CCanvas *CCanvasCreate32(I64 width, I64 height, U32 *buffer =0) {
@@ -885,7 +978,7 @@ public CCanvas *CCanvasCreate16(I64 width, I64 height, U32 *buffer =0) {
   
 
   this->setPixel = &CCanvas_setPixel16;  
-//  this->printFont = &CCanvas_printFont16;  
+  this->printFont = &CCanvas_printFont16;  
   this->printString = &CCanvas_printString;  
   this->fillrect = &CCanvas_fillrect;  
   this->line = &CCanvas_line;
@@ -898,7 +991,7 @@ public CCanvas *CCanvasCreate16(I64 width, I64 height, U32 *buffer =0) {
   this->UpdateScrnRegion = &_CCanvas_UpdateScrnRegion;
   this->scrollScrnDown = &CCanvas_ScrollScrnDown16;
 //  this->calcScrnUpdates = &CCanvas_CalcScrnUpdates16;
-//  this->fullScrnDraw = &CCanvas_FullScrnDraw16;
+  this->fullScrnDraw = &CCanvas_FullScrnDraw16;
 
 
   return this;

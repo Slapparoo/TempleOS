@@ -9,6 +9,8 @@ U0 GrPaletteIndicesSet()
 {//There is a level of indirection that we identity map.
 // Set 16-colors to use first 16 DAC BGR entries, so we
 // never need to worry about indexes, just DAC palette settings.
+
+/*
   I64 i;
   if (Bt(&sys_run_level,RLf_24BIT_GRP)) return;
   if (!Bt(&sys_run_level,RLf_VGA)) return;
@@ -26,11 +28,13 @@ U0 GrPaletteIndicesSet()
   InU8(VGAP_INPUT_STAT); //Rsts attr index/data
   LBtr(&sys_semas[SEMA_VGA],0);
   POPFD
+*/
 }
 
 public U0 GrPaletteColorSet(I64 color_num,CBGR48 bgr48)
 {//VGA has 6-bits for blue, for green, and for red.
 
+/*
   if (Bt(&sys_run_level,RLf_24BIT_GRP)) return;
   if (!Bt(&sys_run_level,RLf_VGA)) return;
   PUSHFD
@@ -44,6 +48,7 @@ public U0 GrPaletteColorSet(I64 color_num,CBGR48 bgr48)
   OutU8(VGAP_PALETTE_DATA,bgr48.b>>10);
   LBtr(&sys_semas[SEMA_VGA],0);
   POPFD
+*/
 }
 
 public CBGR48 GrPaletteColorGet(I64 color_num)

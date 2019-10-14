@@ -65,8 +65,9 @@ MODES_ARRY::    DU8 9920 DUP(0); // modes[40];
 
 SYS_SCRN_WIDTH:  DU16 1024;  // requested width
 SYS_SCRN_HEIGHT: DU16 768;  // requested height
-SYS_SCRN_BPP:    DU16 32;  // requested height
-//SYS_SCRN_BPP:    DU16 8;  // requested height
+SYS_SCRN_BPP:    DU16 32;  // requested BPP
+//SYS_SCRN_BPP:    DU16 16;  // requested BPP
+//SYS_SCRN_BPP:    DU16 8;  // requested BPP
 
 
 //SYS_SCRN_WIDTH:  DU16 640;  // requested width

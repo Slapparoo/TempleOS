@@ -788,8 +788,8 @@ public extern U0 Copy4BitToScreen(CDC *dc);
 public extern CCanvas *CCanvasCreate32(I64 width, I64 height, U32 *buffer =0);
 public extern CCanvas *CCanvasCreate16(I64 width, I64 height, U32 *buffer =0);
 public extern CCanvas *CCanvasCreate8(I64 width, I64 height, U32 *buffer =0);
-public extern CWindow *CPanelCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
-public extern CWindow *CWindowCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
+//public extern CWindow *CPanelCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
+//public extern CWindow *CWindowCreate(CCanvas *dst, U8 * title, I64 w, I64 h);
 
 
 #help_index ""

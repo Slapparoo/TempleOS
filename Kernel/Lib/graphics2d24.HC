@@ -5,6 +5,7 @@ Old 24bit Graphics methods for reference
 
 */
 
+/*
 // Old 24 bit graphics version
 U0 UpdateScrnRegion24(U64 x1, U64 y1, U64 x2, U64 y2)
 {// 
@@ -47,3 +48,4 @@ U0 UpdateScrn24() {
     scrn += 3;
   }  
 }
+*/

@@ -288,10 +288,15 @@ I64 *TaskRegAddr(CTask *task,I64 reg_num)
 
 #define RAWDR_COL	40
 
+#exe {
+  Option(OPTf_WARN_UNUSED_VAR,OFF);
+};
+
+
 U0 RawDr(CTask *task=NULL)
 {
 
-/*
+
 
 // Brook Couldn't find the switch
   I64 i,j,old_col=text.raw_col;
@@ -327,8 +332,13 @@ U0 RawDr(CTask *task=NULL)
 
   text.raw_col=old_col;
   Raw(old_raw);
-*/
+
 }
+
+#exe {
+  Option(OPTf_WARN_UNUSED_VAR,ON);
+};
+
 
 U0 Dr(CTask *task=NULL)
 {//Dump regs

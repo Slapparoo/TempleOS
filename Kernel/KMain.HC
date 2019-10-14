@@ -67,7 +67,7 @@ U0 SysGlblsInit()
   dbg.int_fault_code=IntFaultHndlrsNew;
 }
 
-U0 SysGrInit()
+U0 SysGrInit()
 {
   text.font=sys_font_std;
   text.aux_font=sys_font_cyrillic;
@@ -111,8 +111,8 @@ U0 SysGrInit()
     text.cols=screenCanvas_->width/FONT_WIDTH;
     text.rows=screenCanvas_->height/FONT_HEIGHT;
   
-    text.vga_text_alias	=CAlloc((text.cols*text.rows)<<1);
-    text.vga_alias	=CAlloc((text.cols*text.rows*8));
+    text.vga_text_alias	=CAlloc(text.cols*text.rows<<1);
+    text.vga_alias	=CAlloc(text.cols*text.rows*8);
 
     text.border_chars[2] (I64)='ÄÍ³ºÚÉ¿»';
     text.border_chars[10](U32)='ÀÈÙ¼';

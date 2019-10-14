@@ -1,4 +1,4 @@
-
+/*
 U0 ScrollScrnDown(CCanvas *canvas, U64 xdist)
 {// 
   //Brook Add bounds checks
@@ -8,8 +8,8 @@ U0 ScrollScrnDown(CCanvas *canvas, U64 xdist)
 //  MemCpyU32(canvas->buffer, canvas->buffer + sStartLoc, canvas->size - sStartLoc);
    canvas->scrollScrnDown(canvas, FONT_HEIGHT, WIN_BACK);
 }
-
-U0 RawPutChar(I64 ch)
+*/
+U0 RawPutChar(I64 ch)
 {/*For RAW output during boot and in debugger.
 
 See $LK,"GrUpdateTextFG",A="MN:GrUpdateTextFG"$ for

@@ -46,7 +46,7 @@ public class CGrGlbls
 } gr;
 
 
-public U8 *screenCache = MAlloc(screenCanvas->size);
+public U8 *screenCache = MAlloc(screenCanvas->width * screenCanvas->height);
 
 public extern U0 GrCalcScrnUpdates();
 public extern U0 GrUpdateChanged(U64 a);

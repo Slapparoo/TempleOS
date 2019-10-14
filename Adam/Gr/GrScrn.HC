@@ -17,7 +17,7 @@ U0 GrUpdateTaskODEs(CTask *task)
 
 U0 GrUpdateTaskWin(CTask *task)
 { //Draw a win.  Only Core0 tasks have a win.
-  CDC *dc;
+  CDC *dc;
   CD3I64 saved_scroll;
   sys_task_being_scrn_updated=task;
   try {
@@ -341,12 +341,12 @@ U0 DCBlotColor8(CDC *dc,CDC *img)
   I64 j,
       k,
      d0=img->width_internal*img->height;
-  for (k = 0; k < d0; k++) {
+  for (k = 0; k < d0; k++, b0++) {
     j = *src++;
     if (j != TRANSPARENT)
-      *b0++ = j;
-    else
-      b0++;
+      *b0 = j;
+//    else
+//      b0++;
   }
 }
 
@@ -389,102 +389,6 @@ U0 GrUpdateTextModeText()
   }
 }
 
-public U32 pal[16] = 
-    {BLACK32, BLUE32,    GREEN32,  CYAN32,
-     0x002288,PURPLE32,  BROWN32,  LTGREY32,
-     DKGREY32,LTBLUE32,  LTGREEN32,LTCYAN32,
-     LTRED32, LTPURPLE32,YELLOW32, WHITE32};
-
-
-U0 GrUpdateGr32ModeText()
-{
-  Bool blink_flag=Blink;
-// works as expected
-// Brook update text only mode
-  I64 cur_ch,
-    yy=0,
-    xx=0,
-    x=0, 
-    y=0;
-  U32 *src=gr.text_base, fg2, bg2;
-  U8 fg, bg;
-  U16 *dst2=gr.vga_text_cache;
-  U32 updCnt = 0;
-
-  if (LBtr(&sys_semas[SEMA_FLUSH_VGA_IMAGE],0)) {
-    // full screen update
-    for (y=0;y < TEXT_ROWS;y++) {
-      yy = y<<3;
-      for (x=0;x < TEXT_COLS;x++) {
-        cur_ch=*src++;
-        if (cur_ch & ATTRF_SEL)
-          cur_ch.u8[1]=cur_ch.u8[1]^0xFF;
-        if (cur_ch & ATTRF_INVERT)
-	  cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
-        if (cur_ch & ATTRF_BLINK)
-	  if (blink_flag)
-	    cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
-        // Writen as U16 u8[0] = chr, u8[1] = color bg:fg
-
-        fg=(cur_ch & 0x0F00)>>8;
-        bg=(cur_ch & 0xF000)>>12; 
-
-        fg2 = pal[fg];
-        bg2 = pal[bg];
-
-        screenCanvas->printFont(screenCanvas, cur_ch&0xFF, x<<3, yy, fg2, bg2);
-        *dst2++=cur_ch;
-      }
-    }
-    MemCpyU64(screenCanvas_->buffer, screenCanvas->buffer, screenCanvas->bufferSize>>3);
-
-  } else {
-    // only update the changes
-    for (y=0;y < TEXT_ROWS;y++) {
-      yy = y<<3;
-      for (x=0;x < TEXT_COLS;x++) {
-
-        cur_ch=*src++;
-        if (cur_ch & ATTRF_SEL)
-          cur_ch.u8[1]=cur_ch.u8[1]^0xFF;
-        if (cur_ch & ATTRF_INVERT)
-	  cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
-        if (cur_ch & ATTRF_BLINK)
-	  if (blink_flag)
-	    cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
-        if (*dst2&0xFFFF !=cur_ch&0xFFFF) {
-          fg=(cur_ch & 0x0F00)>>8;
-          bg=(cur_ch & 0xF000)>>12; 
-
-          fg2 = pal[fg];
-          bg2 = pal[bg];
-
-          xx=x<<3;
-          screenCanvas->printFont(screenCanvas, cur_ch&0xFF, xx, yy, fg2, bg2);
-          screenCanvas->pushUpdates(screenCanvas, screenCanvas_, 0, 0);
-
-          *dst2++=cur_ch&0xFFFF;
-          updCnt++;
-        } else {
-	  dst2++;
-        }
-      }
-    }
-  }
-
-}
-
-U0 GrClearDC() {
-  CDC *dc=gr.dc2; // GrUpdateGraphics32
-  U64 len = dc->height*dc->width_internal;
-  U8 *src =dc->body;
-  U64 size=src+len; 
-  
-  for (; src < size; src++) {
-    *src=0;
-  }
-}
-
 U0 GrUpdateVGAGraphics()
 {//Update Graphic Card
 
@@ -518,42 +422,7 @@ U0 GrUpdateVGAGraphics()
   }
 }
 
-I64 lastMouse = -1;
-
-U0 GrUpdateGr32Mouse() {
-
-  I64 x,y, thisMouse;
-  PUSHFD
-  CLI
-  x=ms.pos.x;
-//  y=ms.pos.y + 8;  // ms.pos is being clipped
-  y=ms.pos.y;  // ms.pos is being clipped
-  POPFD
-  if (ms.show && ms_hard.installed) {
-    // pushLast area to pref mouse position
-       CRect *tm = &thisMouse; 
-
-
-       tm->x1 = x;
-       tm->y1 = y;
-       tm->x2 = x+8;
-       tm->y2 = y+8;
-
-       PUSHFD
-       CLI
-       if (lastMouse != -1) {
-         screenCanvas_->UpdateScrnRegion(lastMouse);
-       }
-      
-       screenCanvas_->printFont(screenCanvas_, 'þ', x, y, 0xFFFFFF, 0);
-       POPFD
-       
-       lastMouse = thisMouse;
-  }
-}
-
-
-U0 GrUpdateScrn(U64 a=0)
+U0 GrUpdateScrn()
 {//Called by the Window Manager $LK,"HERE",A="FF:::/Adam/WinMgr.HC,GrUpdateScrn"$, 30 times a second.
   CDC *dc;
 

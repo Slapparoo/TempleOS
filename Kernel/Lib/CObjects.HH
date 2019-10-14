@@ -31,7 +31,7 @@ public class CPoint {
 // U32 means it all fits nicely into an I64
   U32 x, y;
 };
-
+/*
 
 // Brook CCanvas needs a cliprect
 public class CCanvas {
@@ -87,7 +87,7 @@ public class CList {
   U0 (*free)(CList *this);
   U0 (*foreach)(CList *this, I64 (*callback)(I64 index, I64 entry)); // foreach with call back per item
 };
-
+*/
 
 #define LIST_INITIAL_SIZE 16
 #define LIST_GROWBY_SIZE 16    // not a perfect science
