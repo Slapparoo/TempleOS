@@ -58,7 +58,7 @@ SYS_VESA_BFSZ: DU64   0;
 #assert $$-SYS_VESA==sizeof(CVesaInfo)
 
 //MODES_ARRY::    DU8 4960 DUP(0); // modes[20];
-MODES_ARRY::    DU8 9920 DUP(0); // modes[40];
+MODES_ARRY::    DU8 160 DUP(0); // CVesaModeShort  modes[32];
 
 // should have an assert
 
@@ -67,7 +67,7 @@ SYS_SCRN_WIDTH:  DU16 1024;  // requested width
 SYS_SCRN_HEIGHT: DU16 768;  // requested height
 SYS_SCRN_BPP:    DU16 32;  // requested BPP
 //SYS_SCRN_BPP:    DU16 16;  // requested BPP
-//SYS_SCRN_BPP:    DU16 8;  // requested BPP
+//SYS_SCRN_BPP:    DU16 8;  // requested BPP
 
 
 //SYS_SCRN_WIDTH:  DU16 640;  // requested width
@@ -140,8 +140,9 @@ GET_RIP:	POP	BX
         PUSH    ES
         PUSH    DS
         POP     ES
-        MOV     DI, MODES_ARRY
-        MOV     BX, 40
+        MOV     DI, SYS_VESA // use SYS_VESA as temp
+        MOV     SI, MODES_ARRY
+        MOV     BX, 32  // size of Modes_arry
         MOV     CX, 0x40FF
 // array of U16 support modes    
 @@06: // loop
@@ -174,7 +175,16 @@ GET_RIP:	POP	BX
         CMP     [DI+25], AL   
 	JE	@@06
             
+        MOV     AX, [DI+18]
+        MOV     [SI], AX
 
+        MOV     AX, [DI+20]
+        MOV     [SI+2], AX 
+
+        MOV     AL, [DI+25]  
+        MOV     [SI+4], AL 
+
+        ADD     SI, 5
 
 // check for our requested mode
         MOV     AL, [SYS_SCRN_BPP]  
@@ -191,11 +201,10 @@ GET_RIP:	POP	BX
 // were here because the width & height match
         MOV     U16 [SYS_VBE2_MODE], CX
 @@06A:
-        ADD     DI,256
-	MOV	AX,0x004F
-        MOV     [DI],AX
-        MOV     [DI+2],CX
-        ADD     DI,12
+//	MOV	AX,0x004F
+//        MOV     [DI],AX
+//        MOV     [DI+2],CX
+//        ADD     DI,12
 
 
         DEC     BX

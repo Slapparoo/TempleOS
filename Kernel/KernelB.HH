@@ -333,7 +333,8 @@ public _intern IC_RDTSC I64 GetTSC(); //Get time stamp counter.
 #help_index "Vesa"
 public _extern SYS_VESA CVesaInfo vesa_info;
 public _extern SYS_VBE2 CVBE2Info vbe2_info;
-public _extern MODES_ARRY CVesaInfo vesa_modes[50];
+//public _extern MODES_ARRY CVesaInfo vesa_modes[32];
+public _extern MODES_ARRY CVesaModeShort vesa_modes[32];
 
 
 #help_index ""

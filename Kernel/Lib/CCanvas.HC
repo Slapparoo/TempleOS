@@ -154,7 +154,7 @@ public I64 CRect_intersect(I64 this, I64 that) {
 }
 
 
-// the resulting rectangle will be the combined
+// the resulting rectangle will be the combined
 // size of both rectangles
 
 public I64 CRect_join(I64 this, I64 that) {
@@ -200,144 +200,6 @@ U0 CCanvas_free(CCanvas *this) {
   "free at last\n";
 }
 
-U0 CCanvas_setPixel32(CCanvas *this, I64 x, I64 y, U32 color) {
-  if (!CRect_pxinside(this->clipRct, x, y)) {
-    return;
-  }
-
-  this->buffer[this->width * y + x] = color;
-  this->update(this, x, y, x+1, y+1);
-}
-
-U0 CCanvas_setPixel16(CCanvas *this, I64 x, I64 y, U32 color) {
-  if (!CRect_pxinside(this->clipRct, x, y)) {
-    return;
-  }
-  
-  U16 * b = this->buffer;
-
-  b[this->width * y + x] = color&0xFFFF;
-  this->update(this, x, y, x+1, y+1);
-}
-
-U0 CCanvas_setPixel8(CCanvas *this, I64 x, I64 y, U32 color) {
-  if (!CRect_pxinside(this->clipRct, x, y)) {
-    return;
-  }
-
-  U8 * b = this->buffer;
-  b[this->width * y + x] = color&0xFF;
-  this->update(this, x, y, x+1, y+1);
-}
-
-U0 CCanvas_setPixel4(CCanvas *this, I64 x, I64 y, U32 color) {
-  if (!CRect_pxinside(this->clipRct, x, y)) {
-    return;
-  }
-
-  U8 * b = this->buffer;
-  b[this->width * y + x] = color&0xF;
-  this->update(this, x, y, x+1, y+1);
-}
-
-
-
-// which leaves 4bits for shading/blending
-// an example would be SHade + light + 1 - would make the dest pixel 1 shade lighter
-// shade + trasnperency ignore the pixel color
-// blend mixes the 2 colors, how much source is blened into dest
-// is controled by XF_SOURCE
-
-// put the pixel at the location by appliting the transform
-U0 _CCanvas_tranformPixel32(U32 *dst, U32 color) {
-  // Brook no bounds pixel direct
-  // brook this needs asm
-  U32 xform = color&XF_TRANSP,
-    value, dPixel, lighter, i, v, b;
-
-  if (!xform) {
-    // just draw
-    *dst = color;
-    return;
-  } 
-
-
-  if (xform == XF_TRANSP) {
-    // no draw
-  } else if (xform == XF_SHADE) {
-    // shade the dest pixel by
-    value = (color&XF_VALUE)>>21;          // reduce by 22bits (value *16)
-    lighter = (color&XF_LIGHT);
-
-    dPixel = *dst;
-    if (lighter) {
-      // apply to each color
-      for (i = 0; i < 3; i++) {
-        v = dPixel.u8[i];
-        v+=value;
-        if ((v&0xFF) < dPixel.u8[i]) {
-          v = 0xFF;
-        }
-        dPixel.u8[i] = v;
-      }
-    } else {
-      for (i = 0; i < 3; i++) {
-        v = dPixel.u8[i];
-        v-=value;
-        if ((v&0xFF) > dPixel.u8[i]) {
-          v = 0x00;
-        }
-        dPixel.u8[i] = v;
-      }
-    }
-    *dst = dPixel;
-    
-  } else {
-    // must be blend ()
-    dPixel = *dst;
-      // apply to each color
-    for (i = 0; i < 3; i++) {
-      b = (dPixel.u8[i] + color.u8[i])>>1;
-      dPixel.u8[i] = b;
-    }
-    
-    *dst = dPixel;
-  }
-}
-
-U0 _CCanvas_update(CCanvas *this, I64 crect) {
-  // update the dirty region on the screen
-  // Does it need multple dirty regions
-  // expects x1 <= x2
-  
-  // First time though
-  if (!this->updated) {
-    this->updated = TRUE;
-    this->dirtyRct = crect;
-
-    return;    
-  }
-
-  I64 newRct = crect;
-
-  this->updated = TRUE;
-  this->dirtyRct = CRect_join(this->dirtyRct, newRct);
-}
-
-
-U0 CCanvas_update(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2) {
-  _CCanvas_update(this, CRectCreate(x1, y1, x2, y2));
-}
-
-
-U0 CCanvas_cleaned(CCanvas *this) {
-  // update the dirty region on the screen to clear
-  // Does it need multple dirty regions
-  
-  this->updated = FALSE;
-  this->dirtyRct = 0;
-}
-
 U0 CCanvas_printFont32(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
   // Brook change to dynamic font
   U64 letterT = text.font[letter&0xFF],
@@ -352,21 +214,12 @@ U0 CCanvas_printFont32(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
     return;
   }
 
-  // x,y are tracked for cliprect
-
   for (count = 0; count < 64; count++) {
-  // FONT_WIDTH x FONT_HEIGHT
     if (letterT & 0x1) {
-//      if (CRect_pxinside(this->clipRct, x, y)) {
-//        _CCanvas_tranformPixel(dst, fg);
           *dst = fg;
-//      }
       dst++;
     } else {
-//      if (CRect_pxinside(this->clipRct, x, y)) {
-//        _CCanvas_tranformPixel(dst, bg);
           *dst = bg;
-//      }
       dst++;
     }
     if (count & 0x7 == 0x7) {
@@ -376,8 +229,6 @@ U0 CCanvas_printFont32(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
     }
     letterT = letterT>>1;
   }
-  // Brook dynamic font
-  _CCanvas_update(this, intersect);
 }
 
 U0 CCanvas_printFont16(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
@@ -397,8 +248,6 @@ U0 CCanvas_printFont16(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
     return;
   }
 
-  // x,y are tracked for cliprect
-
   for (count = 0; count < 64; count++) {
   // FONT_WIDTH x FONT_HEIGHT
     if (letterT & 0x1) {
@@ -416,8 +265,6 @@ U0 CCanvas_printFont16(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
     }
     letterT = letterT>>1;
   }
-  // Brook dynamic font
-  _CCanvas_update(this, intersect);
 }
 
 
@@ -440,10 +287,7 @@ U0 CCanvas_printFont8(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
     return;
   }
 
-  // x,y are tracked for cliprect
-
   for (count = 0; count < 64; count++) {
-  // FONT_WIDTH x FONT_HEIGHT
     if (letterT & 0x1) {
       *dst = fgc;
       dst++;
@@ -459,8 +303,6 @@ U0 CCanvas_printFont8(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg) {
     }
     letterT = letterT>>1;
   }
-  // Brook dynamic font
-  _CCanvas_update(this, intersect);
 }
 
 
@@ -477,49 +319,6 @@ U0 CCanvas_printString(CCanvas *this, U8 *str, I64 x, I64 y, U32 fg, U32 bg) {
     x += 8;  // Brook dynamic font size
     str++;
   }
-}
-
-U0 CCanvas_fillrect(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2, U32 color) {
-  
-  U64 fRect = CRectCreate(x1, y1, x2, y2);
-  U64 intersect = CRect_intersect(fRect,this->clipRct);
-  if (!intersect) {
-    // completely outside the the area
-    return;
-  }
-
-  CRect *cr = &intersect;
-  x1 = cr->x1;
-  x2 = cr->x2;
-  y1 = cr->y1;
-  y2 = cr->y2;
-
-
-  I64 tOff, bOff, i, tmp, width;
-
-  if (y1>y2) {
-    // switchery do
-    tmp=y1;
-    y1=y2;
-    y2=tmp;
-  }
-
-  if (x1>x2) {
-    // switchery do
-    tmp=x1;
-    x1=x2;
-    x2=tmp;
-  }
-
-  tOff=(y1 * this->width)+x1;
-  bOff=(y2 * this->width)+x1;  
-  width = x2 - x1 +1;
-  
-  for (i=tOff; i<bOff; i+= this->width) {
-    MemSetU32(this->buffer+i, color, width);
-  }
-//  this->update(this, x1, y1, x2, y2);
-  _CCanvas_update(this, intersect);
 }
 
 U0 CCanvas_ScrollScrnDown32(CCanvas *this, U64 xdist, U32 bgColor)
@@ -565,203 +364,6 @@ U0 CCanvas_ScrollScrnDown8(CCanvas *this, U64 xdist, U32 bgColor)
                bgColor&0xFF, this->width * FONT_HEIGHT);
 }
 
-
-
-U0 CCanvas_line(CCanvas *this, I64 x1, I64 y1, I64 x2, I64 y2, U32 color) {
-
-  U64 fRect = CRectCreate(x1, y1, x2, y2);
-  U64 intersect = CRect_intersect(fRect,this->clipRct);
-  if (!intersect) {
-    // completely outside the the area
-    return;
-  }
-
-  I64 i,
-    dx=x2-x1,
-    dy=y2-y1,
-    sdx=SgnI64(dx),
-    sdy=SgnI64(dy),
-    adx=AbsI64(dx),
-    ady=AbsI64(dy),
-    x=adx>>1,
-    y=ady>>1,
-    xx=x1,
-    yy=y1;
-    
-  U32 *dst;
-
-  dst = this->buffer+ (this->width * yy) + xx;
-  *dst = color;
-
-  // on one of the axis the next pixel will be no more than
-  // 1 away
-  if (adx>=ady) { // line is more horizonal
-    for (i=0;i<adx;i++) {
-      y+=ady;
-      if (y>=adx) {
-        y-=adx;
-        yy+=sdy;
-      }
-      xx+= sdx;
-      // pixel
-      if (CRect_pxinside(this->clipRct, xx, yy)) {
-        dst = this->buffer+ (this->width * yy) + xx;
-        *dst = color;
-      }
-    }
-  } else {
-    for (i=0;i<ady;i++) {
-      x+=adx;
-      if (x>=ady) {
-        x-=ady;
-        xx+=sdx;
-      }
-      yy+= sdy;
-      // pixel
-      if (CRect_pxinside(this->clipRct, xx, yy)) {
-        dst = this->buffer+ (this->width * yy) + xx;
-        *dst = color;
-      }
-    }
-  }
-  // this is overkill for a line - this clip rect is way to big
-  this->update(this, x1, y1, x2, y2);
-}
-
-/*
-Copies the src canvas to this canvas's x, y
-*/
-U0 CCanvas_copyFrom(CCanvas *this, I64 x, I64 y, CCanvas *src) {
-  CRect *cr = &this->clipRct;
-  CRect *sc = CRectRelocate(src->clipRct, x, y);
-
-  I64 c = CRectCreate(x, y, cr->x2, cr->y2);
-  c = CRect_intersect(c, *sc);
-
-  cr = &c;
-  
-  U64 
-    xMax = cr->x2-cr->x1,
-    yMax = cr->y2-cr->y1,
-
-    sAddRow = src->width, 
-    dAddRow = this->width,
-    dOffset = (this->width*y) + x;
-   
-  U32 *sBuffer, *dBuffer;
-  sBuffer = src->buffer;
-  dBuffer = dOffset + this->buffer;
-
-  // Brook asm copy loop?
-  for (y=0 ; y<yMax;y++ ) {
-    MemCpyU32(dBuffer, sBuffer, xMax);
-    sBuffer += sAddRow;
-    dBuffer += dAddRow;
-  }
-  _CCanvas_update(this, c);
-
-  // Brook mark the src as clean?
-  src->cleaned(src);
-}
-/*
-
-Copies a rectangle(x1, y1, x2, y2) location from the src to this and puts it at x, y
-
-*/
-U0 CCanvas_copyRegion(CCanvas *this, I64 x, I64 y, CCanvas *src, 
-        I64 x1, I64 y1, I64 x2, I64 y2) {
-// Brook Add bounds check
-  U64 xMax = x2 -x1, // Min(src->width, dst->width-x),
-//    yMax = Min(src->height, dst->height-y),
-    sAddRow = src->width, 
-    dAddRow = this->width,
-    yy = y2 - y1;
-   
-  U32 *sBuffer, *dBuffer;
-  sBuffer = src->buffer + (src->width * y1) + x1;
-  dBuffer = this->buffer + (this->width * (y1 + y)) + (x1 + x);
-
-  for (y=0 ; y<yy;y++ ) {
-    MemCpyU32(dBuffer, sBuffer, xMax);
-    sBuffer += sAddRow;
-    dBuffer += dAddRow;
-  }
-
-  this->update(this, x, y, x+x2-x1, y+y2-y1);
-}
-
-
-U0 CCanvas_copyRegion1(CCanvas *this, I64 x, I64 y, CCanvas *src, I64 crect) {
-// Brook Add bounds check
-  // x1, y1, x2, y2 non-aligned copy
-
-// brook complete 
-
-  // intersect 
-
-  CRect *c = &crect;
-  U64 xMax = c->x2 - c->x1, 
-    sAddRow = src->width, 
-    dAddRow = this->width,
-    yy = c->y2 - c->y1;
-   
-  U32 *sBuffer, *dBuffer;
-  sBuffer = src->buffer + (src->width * c->y1) + c->x1;
-  dBuffer = this->buffer + (this->width * (c->y1 + y)) + (c->x1 + x);
-
-  for (y=0 ; y<yy;y++ ) {
-    MemCpyU32(dBuffer, sBuffer, xMax);
-    sBuffer += sAddRow;
-    dBuffer += dAddRow;
-  }
-
-  this->update(this, x, y, x+c->x2-c->x1, y+c->y2-c->y1);
-}
-
-
-/*
-
-  Copy the dirty region to the dest (x, y)
-
-*/
-U0 CCanvas_pushUpdates(CCanvas *this, CCanvas *dst, I64 x, I64 y) { 
-  if (!this->updated) {
-    return;
-  }
-
-//  CRect *r = &this->dirtyRct;
-
-//  dst->copyRegion(dst, x, y, this, r->x1, r->y1, r->x2, r->y2);  
-  CCanvas_copyRegion1(dst, x, y, this, this->dirtyRct);  
-  
-
-  // mark the src as clean - verify this one
-  this->cleaned(this);
-}
-
-// Utility method used to push changes onto the display screen
-public U0 _CCanvas_UpdateScrnRegion(U64 crect)
-{// 
-  // x1, y1, x2, y2 aligned copy
-  U64 intersect = CRect_intersect(crect, screenCanvas->clipRct);
-  CRect * cr = &intersect;
-//  CRect * cr = &crect;
-
-  U64 row = (cr->x2 - cr->x1),
-   rowAdd = screenCanvas->width,
-   startLoc = ((cr->y1 * screenCanvas->width) + cr->x1),
-   yy;
-  U32 *sBuffer, *dAddress;
-
-  dAddress = &screenCanvas_->buffer[startLoc];
-  sBuffer = &screenCanvas->buffer[startLoc];
-
-  for (yy = cr->y1; yy < cr->y2; yy++) {
-    MemCpyU32(dAddress,sBuffer,row);
-    sBuffer += rowAdd;
-    dAddress += rowAdd;
-  }
-}
 
 
 /*
@@ -852,7 +454,6 @@ U0 CCanvas_FullScrnDraw32(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenC
   U32 *dst = this->buffer;
   U8 *src = grBody;
   
-//  U64 size = src + this->size; 
   I32 i;
 
 
@@ -860,7 +461,7 @@ U0 CCanvas_FullScrnDraw32(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenC
       *dst = pal32[*src];
   }
 
-  this->calcScrnUpdates(this, dest, grBody, screenCache);
+  CCanvas_CalcScrnUpdates32(this, dest, grBody, screenCache);
 }
 
 // neeeds to be extern now there are multiple declrarions
@@ -897,7 +498,7 @@ U0 CCanvas_FullScrnDraw16(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenC
 U0 CCanvas_FullScrnDraw8(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenCache) {
   if (this);
   if (screenCache);
-
+
   MemCpyU64(dest->buffer, grBody, dest->size>>3); 
 }
 
@@ -916,12 +517,10 @@ public CCanvas *CCanvasCreate32(I64 width, I64 height, U32 *buffer =0) {
   this->height = height;
   this->bufferSize = (width*height)<<2;
   if (buffer) {
-//    "Owns buffer=false %p\n", buffer;
     this->buffer=buffer;
     this->ownsBuffer=FALSE;
   } else {
     this->buffer=MAlloc(this->bufferSize);
-//    "Allocate buffer %p\n", this->buffer;
     this->ownsBuffer=TRUE;
   }
   this->size = width*height;
@@ -931,20 +530,10 @@ public CCanvas *CCanvasCreate32(I64 width, I64 height, U32 *buffer =0) {
   this->clipRct = CRectCreate(0, 0, width, height);
   
 
-  this->setPixel = &CCanvas_setPixel32;  
   this->printFont = &CCanvas_printFont32;  
   this->printString = &CCanvas_printString;  
-  this->fillrect = &CCanvas_fillrect;  
-  this->line = &CCanvas_line;
-  this->copyFrom = &CCanvas_copyFrom;
-  this->copyRegion = &CCanvas_copyRegion;
-  this->update = &CCanvas_update;
-  this->cleaned = &CCanvas_cleaned;
-  this->pushUpdates = &CCanvas_pushUpdates;
   this->free = &CCanvas_free;
-  this->UpdateScrnRegion = &_CCanvas_UpdateScrnRegion;
   this->scrollScrnDown = &CCanvas_ScrollScrnDown32;
-  this->calcScrnUpdates = &CCanvas_CalcScrnUpdates32;
   this->fullScrnDraw = &CCanvas_FullScrnDraw32;
 
 
@@ -962,12 +551,10 @@ public CCanvas *CCanvasCreate16(I64 width, I64 height, U32 *buffer =0) {
   this->height = height;
   this->bufferSize = (width*height)<<1;
   if (buffer) {
-//    "Owns buffer=false %p\n", buffer;
     this->buffer=buffer;
     this->ownsBuffer=FALSE;
   } else {
     this->buffer=MAlloc(this->bufferSize);
-//    "Allocate buffer %p\n", this->buffer;
     this->ownsBuffer=TRUE;
   }
   this->size = width*height;
@@ -977,20 +564,10 @@ public CCanvas *CCanvasCreate16(I64 width, I64 height, U32 *buffer =0) {
   this->clipRct = CRectCreate(0, 0, width, height);
   
 
-  this->setPixel = &CCanvas_setPixel16;  
   this->printFont = &CCanvas_printFont16;  
   this->printString = &CCanvas_printString;  
-  this->fillrect = &CCanvas_fillrect;  
-  this->line = &CCanvas_line;
-  this->copyFrom = &CCanvas_copyFrom;
-  this->copyRegion = &CCanvas_copyRegion;
-  this->update = &CCanvas_update;
-  this->cleaned = &CCanvas_cleaned;
-  this->pushUpdates = &CCanvas_pushUpdates;
   this->free = &CCanvas_free;
-  this->UpdateScrnRegion = &_CCanvas_UpdateScrnRegion;
   this->scrollScrnDown = &CCanvas_ScrollScrnDown16;
-//  this->calcScrnUpdates = &CCanvas_CalcScrnUpdates16;
   this->fullScrnDraw = &CCanvas_FullScrnDraw16;
 
 
@@ -1007,12 +584,10 @@ public CCanvas *CCanvasCreate8(I64 width, I64 height, U32 *buffer =0) {
   this->height = height;
   this->bufferSize = (width*height);
   if (buffer) {
-//    "Owns buffer=false %p\n", buffer;
     this->buffer=buffer;
     this->ownsBuffer=FALSE;
   } else {
     this->buffer=MAlloc(this->bufferSize);
-//    "Allocate buffer %p\n", this->buffer;
     this->ownsBuffer=TRUE;
   }
   this->size = width*height;
@@ -1022,102 +597,14 @@ public CCanvas *CCanvasCreate8(I64 width, I64 height, U32 *buffer =0) {
   this->clipRct = CRectCreate(0, 0, width, height);
   
 
-  this->setPixel = &CCanvas_setPixel8;  
   this->printFont = &CCanvas_printFont8;  
   this->printString = &CCanvas_printString;  
-  this->fillrect = &CCanvas_fillrect;  
-  this->line = &CCanvas_line;
-  this->copyFrom = &CCanvas_copyFrom;
-  this->copyRegion = &CCanvas_copyRegion;
-  this->update = &CCanvas_update;
-  this->cleaned = &CCanvas_cleaned;
-  this->pushUpdates = &CCanvas_pushUpdates;
   this->free = &CCanvas_free;
-  this->UpdateScrnRegion = &_CCanvas_UpdateScrnRegion;
   this->scrollScrnDown = &CCanvas_ScrollScrnDown8;
-//  this->calcScrnUpdates = &CCanvas_CalcScrnUpdates8;
   this->fullScrnDraw = &CCanvas_FullScrnDraw8;
-
 
   return this;
 }
-
-
-U0 CCanvas_test1(CCanvas *c) {
-   c->line(c, 900, 50, 1000, 100, 0x888888);
-   c->printString(c, "text", 900, 50, XF_TRANSP, XF_SHADE|XF_VALUE|XF_LIGHT);
-   c->printString(c, "text", 900, 60, 0xFFFFFF, XF_TRANSP);
-   c->printString(c, "text", 900, 60, 0xFFFFFF, XF_TRANSP);
-
-   I64 i = 0;
-   for (i = 70; i < 600; i+=10) {
-     c->printString(c, "text3", 600, i, 0xFFFFFF, XF_TRANSP);
-   }
-
-   CRect_print(c->dirtyRct);
-
-
-   c->pushUpdates(c, screenCanvas_, 0, 0);
-
-
-   for (i = 70; i < 600; i+=10) {
-     c->printString(c, "text5", 950, i, 0xFFFFFF, XF_TRANSP);
-   }
-   CRect_print(c->dirtyRct);
-
-   c->pushUpdates(c, screenCanvas_, 0, 0);
-
-   CRect_print(c->dirtyRct);
-
-//   I64 dr = CRectCreate(900, 50, 1000,600);   
-//   _CCanvas_UpdateScrnRegion(dr);
-}
-
-
-
-U0 CCanvas_Test8BitFont(CCanvas *c) {
-   c->printString(c, "text line", 900, 60, 0xFF, 0);
-}
-
-
-
-U0 CRect_test1() {
-
-  I64 r =CRectCreate(200, 75, 100, 150);
-
-
-  "r ";
-  CRect_print(r);
-
-  I64 c = CRect_normalise(r);
-  "r normalise";
-  CRect_print(c);
-
-  I64 r1 = CRectCreate(120, 10, 20, 80);
-
-  CRect_print(r1);
-
-  "%d\n", CRect_inside(r1, r);
-  " intersect "; CRect_print(CRect_intersect(r1, r));
-  " intersect "; CRect_print(CRect_intersect(r, r1));
-  " join "; CRect_print(CRect_join(r, r1));
-  " join "; CRect_print(CRect_join(r1, r));
-
-  c = CRectSet(r1, 50, 10, 20, 80);
-
-  "%d\n", CRect_inside(c, r);
-  " intersect "; CRect_print(CRect_intersect(c, r));
-  " join "; CRect_print(CRect_join(c, r));
-
-  "Check if adjoining areas get an interset\n";
-  I64 rr1 =CRectCreate(100, 75, 200, 150);
-  I64 rr2 =CRectCreate(200, 75, 300, 150);
-
-  " intersect "; CRect_print(CRect_intersect(rr1, rr2));
-
-
-}
-
 
 //public U64 CDC_UPD_CNT1 = 0;
 

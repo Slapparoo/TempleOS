@@ -1,17 +1,9 @@
-
-
-//U16 *modelist = dev.uncached_alias+vbe2_info.video_modes;
-//U8 *vender = vbe2_info.vender;
-
-
-//"Vender %s\n", vender;
-
 U32 i;
 
 "Available modes:\n";
 
-for ( i = 0; i < 50; ++i) {
-  if (vesa_modes[i].return_code != 0x004F) {
+for ( i = 0; i < 32; ++i) {
+  if (vesa_modes[i].bpp == 0) {
     break;
   }
   if (vesa_modes[i].bpp == 32) {
@@ -21,27 +13,15 @@ for ( i = 0; i < 50; ++i) {
     "$$GREEN$$";
   }
   if (vesa_modes[i].bpp == 16) {
-    "$$BLACK$$";
+    "$$BLACK$$";
   }
   if (vesa_modes[i].bpp < 16) {
     "$$GREEN$$";
   }
-  if (vesa_modes[i].mode == vesa_info.mode) {
-    "$$BG,LTGRAY$$ *";
-  } else {
-    "  ";
-  }
 
-
-  "Mode 0x%p", vesa_modes[i].mode;
-  " w/h/bpp %4d, %4d, %2d %b\n",vesa_modes[i].width, vesa_modes[i].height, vesa_modes[i].bpp, vesa_modes[i].attributes;
+  "w/h/bpp %4d, %4d, %2d\n",vesa_modes[i].width, vesa_modes[i].height, vesa_modes[i].bpp;
   "$$FG$$$$BG$$";
-  
-
-
-
 }
-
 
 "Current mode:\n";
   "  Mode 0x%p", vesa_info.mode;
