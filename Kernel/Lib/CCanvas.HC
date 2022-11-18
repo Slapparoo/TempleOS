@@ -451,7 +451,7 @@ U0 CCanvas_FullScrnDraw32(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenC
   //Copy the 4bit screen to the 32bit display screen
   // fudging it;
 
-  U32 *dst = this->buffer;
+  U32 *dst = dest->buffer;
   U8 *src = grBody;
   
   I32 i;
@@ -461,7 +461,9 @@ U0 CCanvas_FullScrnDraw32(CCanvas* this, CCanvas *dest, U8* grBody, U8 * screenC
       *dst = pal32[*src];
   }
 
-  CCanvas_CalcScrnUpdates32(this, dest, grBody, screenCache);
+  
+
+ // CCanvas_CalcScrnUpdates32(this, dest, grBody, screenCache);
 }
 
 // neeeds to be extern now there are multiple declrarions
