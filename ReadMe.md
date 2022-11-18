@@ -28,3 +28,5 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 [Boot TempleOS with Grub2](https://github.com/Slapparoo/TempleOS-EE/wiki/Boot-TempleOS-with-Grub2)
 
 [Quick Customisation Tasks](https://github.com/Slapparoo/TempleOS-EE/wiki/Quick-Customisation-Tasks)
+
+[Github project page](https://slapparoo.github.io/TempleOS-EE/)
