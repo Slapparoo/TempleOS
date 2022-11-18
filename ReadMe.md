@@ -33,3 +33,12 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 
 [Github Source repository](https://github.com/Slapparoo/TempleOS-EE)
 
+## Blog Posts
+<ul>
+  {% for post in site.posts %}
+    <li>
+      <a href="{{ post.url }}">{{ post.title }}</a>
+    </li>
+  {% endfor %}
+</ul>
+
