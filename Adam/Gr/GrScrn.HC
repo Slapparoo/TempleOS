@@ -181,7 +181,7 @@ U0 GrUpdateTextBG()
       i,j,cur_ch,
       reg R12 w1=gr.dc2->width_internal,
       w2=-7*w1+8,
-      w3=7*w1,
+      w3=(FONT_HEIGHT-1)*w1,
       w4=0;
   U32 *src=gr.text_base;
   Bool blink_flag=Blink;
@@ -245,22 +245,13 @@ U0 GrUpdateTextBG()
 	  cur_ch.u8[1]=cur_ch.u8[1]<<4+cur_ch.u8[1]>>4;
       }
       c=gr.to_8_colors[cur_ch.u8[1]>>4];
-      MOV	U64 [RSI],R13
-      ADD	RSI,R12
-      MOV	U64 [RSI],R13
-      ADD	RSI,R12
-      MOV	U64 [RSI],R13
-      ADD	RSI,R12
-      MOV	U64 [RSI],R13
-      ADD	RSI,R12
-      MOV	U64 [RSI],R13
-      ADD	RSI,R12
-      MOV	U64 [RSI],R13
-      ADD	RSI,R12
-      MOV	U64 [RSI],R13
-      ADD	RSI,R12
-      MOV	U64 [RSI],R13
-      dst(U8 *)+=w2;
+      I64 *dstTmp = dst, ix;
+      for (ix = 0; ix < FONT_HEIGHT; ix++, dst+=TEXT_COLS) {
+        MOV	U64 [RSI],R13
+      }
+      dst = dstTmp;
+      dst++;
+
     }
     src+=w4;
     dst(U8 *)+=w3;
@@ -274,7 +265,7 @@ U0 GrUpdateTextFG()
   I64 i,j,cur_ch,
     *dst=gr.dc2->body,
     w1=gr.dc2->width_internal,
-    w2=7*w1,w4=0,
+    w2=(FONT_HEIGHT-1)*w1,w4=0,
     num_rows=TEXT_ROWS,
     num_cols=TEXT_COLS,row,col;
   U8 *dst_start=gr.dc2->body,*dst_end=dst_start+w1*gr.dc2->height-7*w1-8;

@@ -295,7 +295,8 @@ _GR_ROP_EQU_U8_NO_CLIPPING::
 	MOV	RDI,U64 SF_ARG2[RBP]
 	MOV	RSI,U64 [&gr.to_8_bits] //RSI is gr.to_8_bits
 
-//	m=my_1_to_8_bits[ch&255];ch>>=8;
+//	m=my_1_to_8_bits[ch&255];
+//  color=ch>>=8;
 //	*dst=*dst&~m|c&m;
 //	dst(U8 *)+=w1;
 
@@ -397,35 +398,8 @@ _GR_ROP_EQU_U8_NO_CLIPPING::
 @@10:	POP	RBP
 	RET1	24
 }
-_extern _GR_ROP_EQU_U8_NO_CLIPPING U0 GrRopEquU8NoClipping_(I64 ch,
-	U8 *dst,I64 width_internal);
-
-U0 GrRopEquU8NoClipping(I64 ch, U8 *dst,I64 width_internal) {
-  U64 letterT = text.font[ch & 0xFF], i;
-  if (letterT == 0) return;
-
-
-  U8 c = ch.u8[1] & 0xFF;
-  U8 reg RBX color = c;
-
-  dst += ((FONT_HEIGHT-8) >> 1) * width_internal;
-
-  for (i= 0; i < 64; i++) {
-   if (letterT & 0x1) {
-     *dst = color;
-   }
-   dst++;
-
-   if (i & 0x7 == 0x7) {
-     dst += width_internal - FONT_WIDTH;
-   }
-   letterT = letterT >>1;
-  }
-} 
-
-
-public _extern _IS_PIX_COVERED0 Bool IsPixCovered0(
-	CTask *task,I64 x,I64 y);//No clipping
+_extern _GR_ROP_EQU_U8_NO_CLIPPING U0 GrRopEquU8NoClipping_old(I64 ch,	U8 *dst, I64 width_internal);
+public _extern _IS_PIX_COVERED0 Bool IsPixCovered0(	CTask *task,I64 x,I64 y);//No clipping
 
 _extern _GR_UPDATE_LINE64 U0 GrUpdateLine64(
   U64 **_vga,U64 **_src,I64 d,U8 **_dst);
@@ -433,3 +407,25 @@ _extern _GR_UPDATE_LINE64_FLUSH_CACHE U0 GrUpdateLine64FlushCache(
   U64 **_vga,U64 **_src,I64 d,U8 **_dst);
 _extern _DC_BLOT_COLOR4 U0 DCBlotColor4(
   U8 *dst,I64 *img,I64 *img_cache,I64 cnt);
+
+/**
+ * non asm version of draw char 8bit graphics
+*/
+U0 GrRopEquU8NoClipping(I64 letter,U8 *dst, I64 width_internal) {
+  U64 letterT = text.font[letter & 0xFF], i;
+  U8 color = letter.u8[1] & 0xFF;   
+
+
+  for (i = 0; i < 64; i++) {
+    if (letterT & 0x1) {
+      *dst = color;
+	}
+	dst++;
+
+    if (i & 0x7 == 0x7) {
+      dst += width_internal - FONT_WIDTH;
+    }
+    letterT = letterT >> 1;
+  }
+
+}

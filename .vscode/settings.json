@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.HC": "c",
+        "*.HH": "c",
+        "typeinfo": "c"
+    }
+}

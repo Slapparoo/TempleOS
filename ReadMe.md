@@ -1,5 +1,8 @@
 # TempleOS Explorers Edition
 
+# RzOS Expansion (major evision of TempleOS)
+
+## Overview
 TempleOS was developed by the late Terry Davis and is a true testament to what a person can achieve, he single handedly developed and built the OS using a compiler he also developed. The system is "alien" to all its contemparies in that no external code or binary's can be introduced into the system (easily) or exported and run outside the environment.
 
 The system has two pre-built binary's the Kernel and Compiler, at bootup the runtime environment is Just In Time (JIT) compiled and executed. The System is fast, the compiler is fast, in VirtualBox system startup time for me is around 0.4 seconds and that includes the compilation time of the runtime environment.
@@ -8,20 +11,18 @@ The compiler HolyC is a variant of C and there is some crossover, but there are 
 
 He didn't re-write the book he built on the lessons of C and created a language which builds on the strengths, removes several complexities and weaknesses. But not all, pointer implementation as far as I can tell is implemented in the same way that it is implemented in C.
 
-Explorers Edition builds on top of the base TempleOS to add new hardware support and installation options. 
+## RzOS
+Ring Zero Operating System
 
-What I interpret as Terry's intention for the OS will be honoured what I interpret as Gods intention will not, with the Ultimate Goal being a light weight Hobby OS, that is a fun place to explore and develop new ideas. Something that stands apart from the main stream Commercial OS's and is developed independently and encourages users to get in and get their hands dirty and try new things.
+Migrate from BIOS to UEFI
 
-Initial Goals
-The initial Goals are to bring the core of the OS up so it can be installed and run on (as many as possible) x64 PC's
+tasks Outline
+* Adapt c ufi headers 
+* Add compiler extensions for Linux AIB, and UEFI calling conventions
+* switch to a 8x16 font and probably use an existing 8x16.psf font
+* Rewrite the kernel to boot from UEFI
+* Implement a posix compatable stdlib in the kernel (this should allow some interapability with linx etc..)
 
-* 32 Bit VESA Graphics
-* AHCI Support
-* More installation options (Maybe something using LILI style Virtualbox on a USB stick, Grub USB stick with a RAM ISO Image)
-* Focus on the core Kernel
-* Ability to easily manage code changes in source control
-* Add newer OP codes to the assembler and compiler 
-* Develop hardware graphics driver
 
 [Wiki](https://github.com/Slapparoo/TempleOS-EE/wiki)
 
