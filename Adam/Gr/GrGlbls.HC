@@ -48,8 +48,8 @@ public class CGrGlbls
 
 public U8 *screenCache = MAlloc(screenCanvas->width * screenCanvas->height);
 
-public extern U0 GrCalcScrnUpdates();
-public extern U0 GrUpdateChanged(U64 a);
+//public extern U0 GrCalcScrnUpdates();
+//public extern U0 GrUpdateChanged(U64 a);
 
 
 //See $LK,"RLf_VGA",A="FF:::/Kernel/KStart16.HC,RLf_VGA"$
@@ -78,3 +78,5 @@ HashPublic("TEXT_ROWS",HTT_DEFINE_STR);
 //DefinePrint("TEXT_COLS","%d",text.cols);;;
 DefinePrint("TEXT_COLS","%d",textcols);
 HashPublic("TEXT_COLS",HTT_DEFINE_STR);
+
+"GrGlbls complete\n";

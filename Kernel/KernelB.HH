@@ -238,7 +238,7 @@ _extern MEM_PHYSICAL_SPACE U8 *mem_physical_space;
 public _extern SYS_FOCUS_TASK CTask *sys_focus_task; //Current focus task.
 
 #help_index "Misc"
-public _extern SYS_COMPILE_TIME
+public _extern SYS_COMPILE_TIME
 	CDate sys_compile_time; //Date and time kernel was compiled.
 _extern SYS_CTRL_ALT_FLAGS
 	I64 sys_ctrl_alt_flags[1]; //Should be semiphores?
@@ -334,7 +334,7 @@ public _intern IC_RDTSC I64 GetTSC(); //Get time stamp counter.
 public _extern SYS_VESA CVesaInfo vesa_info;
 public _extern SYS_VBE2 CVBE2Info vbe2_info;
 //public _extern MODES_ARRY CVesaInfo vesa_modes[32];
-public _extern MODES_ARRY CVesaModeShort vesa_modes[32];
+public _extern MODES_ARRY CVesaModeShort vesa_modes[32];
 
 
 #help_index ""

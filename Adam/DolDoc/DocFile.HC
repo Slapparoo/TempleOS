@@ -114,8 +114,10 @@ public U8 *DocSave(CDoc *doc,I64 *_size=NULL)
     if (!Bt(doldoc.type_flags_data,doc_e->type_u8))
       switch (doc_e->type_u8) {
 	case DOCT_CURSOR:
-	  DocEntryDel(doc,doc_e);
-	  *dst++=CH_CURSOR;
+          if (DD_INSERT_CURSOR) {
+  	    DocEntryDel(doc,doc_e);
+	    *dst++=CH_CURSOR;
+          }
 	  break;
 	case DOCT_TAB:
 	  *dst++='\t';

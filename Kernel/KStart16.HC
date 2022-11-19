@@ -63,8 +63,8 @@ MODES_ARRY::    DU8 160 DUP(0); // CVesaModeShort  modes[32];
 // should have an assert
 
 
-SYS_SCRN_WIDTH:  DU16 1024;  // requested width
-SYS_SCRN_HEIGHT: DU16 768;  // requested height
+SYS_SCRN_WIDTH:  DU16 1600;  // requested width
+SYS_SCRN_HEIGHT: DU16 1200;  // requested height
 SYS_SCRN_BPP:    DU16 32;  // requested BPP
 //SYS_SCRN_BPP:    DU16 16;  // requested BPP
 //SYS_SCRN_BPP:    DU16 8;  // requested BPP
@@ -204,7 +204,7 @@ GET_RIP:	POP	BX
 //	MOV	AX,0x004F
 //        MOV     [DI],AX
 //        MOV     [DI+2],CX
-//        ADD     DI,12
+//        ADD     DI,12
 
 
         DEC     BX
@@ -367,3 +367,4 @@ the code segment with a far jump.
 	DU16	CGDT.boot_cs;
 #assert $$+16<=0xFFFF
 }
+ 

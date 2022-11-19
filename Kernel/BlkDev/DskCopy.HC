@@ -22,7 +22,8 @@ Bool CopySingleZ(U8 *f1,U8 *f2) //Just one file
 #define COPY_BUF_BLKS	0x80
 Bool CopySingle(U8 *f1,U8 *f2) //Just one file
 {
-  U8 *absf1=FileNameAbs(f1),*absf2=FileNameAbs(f2),*buf;
+  U8 buf[COPY_BUF_BLKS<<BLK_SIZE_BITS];
+  U8 *absf1=FileNameAbs(f1),*absf2=FileNameAbs(f2);
   I64 cnt,n,size,attr1=FileAttr(f1),attr2=FileAttr(f2),i,j;
   CFile *in_file=NULL,*out_file=NULL;
   if (!StrCmp(absf1,absf2)) {//onto self?
@@ -34,7 +35,7 @@ Bool CopySingle(U8 *f1,U8 *f2) //Just one file
   Free(absf2);
   if (attr1!=attr2)
     return CopySingleZ(f1,f2);
-  buf=MAlloc(COPY_BUF_BLKS<<BLK_SIZE_BITS);
+//  buf=MAlloc(COPY_BUF_BLKS<<BLK_SIZE_BITS);
   if (attr1 & RS_ATTR_CONTIGUOUS)
     in_file=FOpen(f1,"rc");
   else
@@ -68,14 +69,14 @@ Bool CopySingle(U8 *f1,U8 *f2) //Just one file
       out_file->de.attr=FileAttr(f2,in_file->de.attr);
       FClose(out_file);
       FClose(in_file);
-      Free(buf);
+//      Free(buf);
       return TRUE;
     } else
       PrintErr("File not found: \"%s\".\n",f2);
     FClose(in_file);
   } else
     PrintErr("File not found: \"%s\".\n",f1);
-  Free(buf);
+//  Free(buf);
   return FALSE;
 }
 

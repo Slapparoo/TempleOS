@@ -67,7 +67,7 @@ U0 SysGlblsInit()
   dbg.int_fault_code=IntFaultHndlrsNew;
 }
 
-U0 SysGrInit()
+U0 SysGrInit()
 {
   text.font=sys_font_std;
   text.aux_font=sys_font_cyrillic;
@@ -84,32 +84,32 @@ U0 SysGlblsInit()
   } else { //if Graphics mode
     if (vesa_info.bpp == 32) {
     	vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp>>3;
-    	screenCanvas = CCanvasCreate32(vesa_info.width, vesa_info.height, 0);
-    	screenCanvas_ = CCanvasCreate32(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
-    	screenBuffer = CCanvasCreate32(vesa_info.width, vesa_info.height, 0);
+//    	screenCanvas = CCanvasCreate32(vesa_info.width, vesa_info.height, 0);
+    	screenCanvas = CCanvasCreate32(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
+//    	screenBuffer = CCanvasCreate32(vesa_info.width, vesa_info.height, 0);
 
-    	MemSetU32(screenCanvas_->buffer, WIN_BACK, screenCanvas_->size);
+//    	MemSetU32(screenCanvas_->buffer, WIN_BACK, screenCanvas_->size);
     } else if (vesa_info.bpp == 16) {
 	
     	vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp>>1;
-    	screenCanvas = CCanvasCreate16(vesa_info.width, vesa_info.height, 0);
-    	screenCanvas_ = CCanvasCreate16(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
-    	screenBuffer = CCanvasCreate16(vesa_info.width, vesa_info.height, 0);
+//    	screenCanvas = CCanvasCreate16(vesa_info.width, vesa_info.height, 0);
+    	screenCanvas = CCanvasCreate16(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
+//    	screenBuffer = CCanvasCreate16(vesa_info.width, vesa_info.height, 0);
 
-    	MemSetU16(screenCanvas_->buffer, WIN_BACK, screenCanvas_->size);
+//    	MemSetU16(screenCanvas_->buffer, WIN_BACK, screenCanvas_->size);
     } else if (vesa_info.bpp == 8) {
     	vesa_info.bufferSize = vesa_info.width*vesa_info.height*vesa_info.bpp;
-    	screenCanvas = CCanvasCreate8(vesa_info.width, vesa_info.height, 0);
-    	screenCanvas_ = CCanvasCreate8(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
-    	screenBuffer = CCanvasCreate8(vesa_info.width, vesa_info.height, 0);
+//    	screenCanvas = CCanvasCreate8(vesa_info.width, vesa_info.height, 0);
+    	screenCanvas = CCanvasCreate8(vesa_info.width, vesa_info.height, vesa_info.framebuffer);
+//    	screenBuffer = CCanvasCreate8(vesa_info.width, vesa_info.height, 0);
 
-    	MemSetU8(screenCanvas_->buffer, 0, screenCanvas_->size);
+//    	MemSetU8(screenCanvas_->buffer, 0, screenCanvas_->size);
     }
 
 
 
-    text.cols=screenCanvas_->width/FONT_WIDTH;
-    text.rows=screenCanvas_->height/FONT_HEIGHT;
+    text.cols=screenCanvas->width/FONT_WIDTH;
+    text.rows=screenCanvas->height/FONT_HEIGHT;
   
     text.vga_text_alias	=CAlloc(text.cols*text.rows<<1);
     text.vga_alias	=CAlloc(text.cols*text.rows*8);

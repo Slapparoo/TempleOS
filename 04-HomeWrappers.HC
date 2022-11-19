@@ -24,3 +24,21 @@ public I64 RD(U8 *needle_str,U8 *replace_text=NULL,U8 *fu_flags="+l-i")
 {//Find text and replace in cur dir text files.
   return Find(needle_str,"*",fu_flags,replace_text);
 }
+
+#define STD_BOOTHDINS	"\nc\np1\n\n\n\n"
+
+public I64 bi()
+{// BootHDIns
+  In(STD_BOOTHDINS);
+  return BootHDIns;
+}
+
+public U0 rb()
+{
+  return Reboot;
+}
+
+public I64 dir()
+{
+  Dir;
+}

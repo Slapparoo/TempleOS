@@ -58,7 +58,7 @@ public Bool GrPlot0(CDC *dc=gr.dc,I64 x,I64 y)
     case ROPB_EQU:
     case ROPB_MONO:
       *dst=color.c0.color;
-      CDC_update(dc, CRectCreate(x, y, x+1, y+1));
+//      CDC_update(dc, CRectCreate(x, y, x+1, y+1));
       break;
     case ROPB_COLLISION:
       c=*dst;
@@ -67,7 +67,7 @@ public Bool GrPlot0(CDC *dc=gr.dc,I64 x,I64 y)
       break;
     case ROPB_XOR:
       *dst^=color.c0.color;
-      CDC_update(dc, CRectCreate(x, y, x+1, y+1));
+//      CDC_update(dc, CRectCreate(x, y, x+1, y+1));
       break;
   }
   return TRUE;
@@ -172,7 +172,7 @@ public I64 GrBlot(CDC *dc=gr.dc,I64 x,I64 y,CDC *img)
 	  k+=img->width_internal;
 	  k1+=dc->width_internal;
 	}
-        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+//        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	break;
       case ROPB_MONO:
 	color_mask=gr.to_8_colors[color.c0.color];
@@ -327,7 +327,7 @@ public I64 GrBlot(CDC *dc=gr.dc,I64 x,I64 y,CDC *img)
 	    }
 	  }
 	}
-        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+//        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	break;
       case ROPB_EQU:
 	if (img->flags&DCF_NO_TRANSPARENTS) {
@@ -488,7 +488,7 @@ here1a:
 	  }
 	  dc->color=color;
 	}
-        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+//        CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	break;
       case ROPB_XOR:
 	if (img->flags&DCF_NO_TRANSPARENTS) {
@@ -593,7 +593,7 @@ here1a:
 	      kk +=img->width_internal;
 	      kk1+=dc->width_internal;
 	    }
-          CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+//          CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 	} else
 	  goto here1a;
 	break;
@@ -794,7 +794,7 @@ public I64 GrPutChar(CDC *dc=gr.dc,I64 x,I64 y,U8 ch)
 	}
       }
     } else {
-      CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+//      CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 
       color_mask=gr.to_8_colors[color.c0.color];
       k1=x+w1;
@@ -1148,7 +1148,7 @@ public I64 GrRect(CDC *dc=gr.dc,I64 x,I64 y,I64 w,I64 h)
       }
       kk1=(h1+y)*dc->width_internal+x+w1;
 
-      CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
+//      CDC_update(dc, CRectCreate(x+w1, y+h1, x+w2, y+h2));
 
       if (dither) {
 	if (probability_dither) {

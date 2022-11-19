@@ -3579,7 +3579,7 @@ public class CTextGlbls
 };
 
 #define FONT_WIDTH	8
-#define FONT_HEIGHT	8
+#define FONT_HEIGHT	12
 
 //#help_index "Graphics"
 
@@ -3951,7 +3951,7 @@ public class CVesaModeShort
 {
   U16 width;
   U16 height;
-  U8  bpp;
+  U8  bpp;
 };
 
 
@@ -4007,36 +4007,10 @@ public class CVBE2Info
 
 };
 
-/*
-public class CGr32Scrn
-{// Describes a logical screen
-  U16 width, height;
-  U32 *buffer;
-  U64 size; // width*height;
-  U64 bufferSize; // = width*height*4;
-
-  // Updated bounds
-  Bool updated;
-  U64 minx, miny, maxx, maxy;
-
-};
-*/
 public class CVesaModes
 {// supported graphics modes
   U16 modes[50];
 };
-/*
-public class CWindow24
-{
-  CGr32Scrn canvas;
-  CGr32Scrn *dst; // probably the screen
-  I64 x, y;
-  U64 w, h, canvasX, canvasY;  // the window is bigger than the canvas
-  U8 *title;
-  Bool visible;
-};
-*/
-
 
 #define CLEAR32   0xFF000000
 // Bits 1-2 shading = values deccrements of 32?
@@ -4092,34 +4066,6 @@ public class CWindow24
 #define XF_VALUE   0b00001111000000000000000000000000  // shade/blend weighting
 
 
-/*
-
-The Definition of some Gr32 obects
-
-*/
-
-class CSize {
-// Basic description of a screen item size width + height
-// U32 means it all fits nicely into an I64
-  U32 w, h;
-};
-
-
-public class CRect {
-// Basic description of a screen rectangle
-// U16 means it all fits nicely into an I64
-  U16 x1, x2, y1, y2;
-};
-
-
-public class CPoint {
-// Basic description of a screen location
-// U32 means it all fits nicely into an I64
-  U32 x, y;
-};
-
-
-// Brook CCanvas needs a cliprect
 public class CCanvas {
 // Describes a logical screen
   I16 width, height;
@@ -4127,25 +4073,12 @@ public class CCanvas {
   I64 size; // width*height;
   I64 bufferSize; // = width*height*4;
 
-  I64 rct;  // canvas bounds
-
-  // Updated bounds
-  Bool updated; // Dirty flag
-  I64 dirtyRct;  // Maybe a list
-  // Clip area - currently unused
-  Bool clipped; // has a clip rect
-
-  // Brook rename
-  I64 clipRct;
-  
-  Bool ownsBuffer;
-
   U0 (*printFont)(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg);
   U0 (*printString)(CCanvas *this, U8 *str, I64 x, I64 y, U32 fg, U32 bg);
-  U0 (*free)(CCanvas *this);
-  U0 (*scrollScrnDown)(CCanvas *this, U64 xdist, U32 hgColor);
   U0 (*fullScrnDraw)(CCanvas *this, CCanvas *dest, U8* grBody, U8* screenCache);
 };
 
+// toggle whether DoDoc inserts the cusrsor position at save
+#define DD_INSERT_CURSOR 0
 
-#help_index ""
+#help_index "" 

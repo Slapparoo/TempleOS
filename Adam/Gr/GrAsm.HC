@@ -397,8 +397,33 @@ _GR_ROP_EQU_U8_NO_CLIPPING::
 @@10:	POP	RBP
 	RET1	24
 }
-_extern _GR_ROP_EQU_U8_NO_CLIPPING U0 GrRopEquU8NoClipping(I64 ch,
+_extern _GR_ROP_EQU_U8_NO_CLIPPING U0 GrRopEquU8NoClipping_(I64 ch,
 	U8 *dst,I64 width_internal);
+
+U0 GrRopEquU8NoClipping(I64 ch, U8 *dst,I64 width_internal) {
+  U64 letterT = text.font[ch & 0xFF], i;
+  if (letterT == 0) return;
+
+
+  U8 c = ch.u8[1] & 0xFF;
+  U8 reg RBX color = c;
+
+  dst += ((FONT_HEIGHT-8) >> 1) * width_internal;
+
+  for (i= 0; i < 64; i++) {
+   if (letterT & 0x1) {
+     *dst = color;
+   }
+   dst++;
+
+   if (i & 0x7 == 0x7) {
+     dst += width_internal - FONT_WIDTH;
+   }
+   letterT = letterT >>1;
+  }
+} 
+
+
 public _extern _IS_PIX_COVERED0 Bool IsPixCovered0(
 	CTask *task,I64 x,I64 y);//No clipping
 

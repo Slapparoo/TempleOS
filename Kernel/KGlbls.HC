@@ -36,7 +36,7 @@ U0 (*fp_set_std_palette)();
 
 //U0 *(*printFonts_)(U32 reg RDI *dst, reg RCX I64 scrnWidth, reg RAX U32 fg, reg RBX U32 bg);
 CCanvas *screenCanvas;
-CCanvas *screenCanvas_;
-CCanvas *screenBuffer;
+//CCanvas *screenCanvas_;
+//CCanvas *screenBuffer;
 
 public U64 CDC_UPD_CNT1 = 0;
