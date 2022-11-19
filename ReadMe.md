@@ -33,6 +33,8 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 
 [Github Source repository](https://github.com/Slapparoo/TempleOS-EE)
 
+[ISO release TempleOS-EE 6.03](https://github.com/Slapparoo/TempleOS-EE/releases/tag/6.03-beta)
+
 ## Blog Posts
 <ul>
   {% for post in site.posts %}
