@@ -8,7 +8,7 @@ I am currently writing in HolyC the ability to call the Windows ABI stack frame,
 The Windows ABI uses register based parameter passing to methods, then once the registers are full it will pass additional parameters on the stack fortunatly for the most part the return value will be in RAX, as far as I can tell this will only change if its a float.
 See also (Windows x64 Calling Convention)[https://learn.microsoft.com/en-us/cpp/build/x64-calling-convention?view=msvc-170]
 
-Initially I will focus on up to four parameter cals when the parameters are placed in RCX, RDX, R8, R9, there are additional rules around the preservation of other registers, as far as I can tell the other registers we are interested in preseving are preserved like RBP.
+Initially I will focus on up to four parameter calls when the parameters are placed in RCX, RDX, R8, R9, there are additional rules around the preservation of other registers, as far as I can tell the other registers we are interested in preseving are preserved like RBP.
 
 ## Implementation Overview
 Fortunatly through the foresight of Terry HolyC is a very veristile language especially for "low level" system work. As far as I can tell it only requires one line of assembly.
