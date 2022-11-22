@@ -35,7 +35,7 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 
 [ISO release TempleOS-EE 6.03](https://github.com/Slapparoo/TempleOS-EE/releases/tag/6.03-beta)
 
-[Linix TempleOS utilities](https://github.com/Slapparoo/templeos-utils)
+[Linux TempleOS utilities](https://github.com/Slapparoo/templeos-utils)
 
 ## Blog Posts
 <ul>
