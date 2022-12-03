@@ -61,10 +61,16 @@ SYS_VESA_BFSZ: DU64   0;
 MODES_ARRY::    DU8 160 DUP(0); // CVesaModeShort  modes[32];
 
 // should have an assert
+// Virtual box
+// 640x480x32   = 0x4142
+// 800x600x32   = 0x4143
+// 1024x768x32  = 0x4144
+// 1280x1024x32 = 0x4145
+// 1860x1050x32 = 0x4160 // custom vbox
 
 
-SYS_SCRN_WIDTH:  DU16 1600;  // requested width
-SYS_SCRN_HEIGHT: DU16 1200;  // requested height
+SYS_SCRN_WIDTH:  DU16 1280;  // requested width
+SYS_SCRN_HEIGHT: DU16 1024;  // requested height
 SYS_SCRN_BPP:    DU16 32;  // requested BPP
 //SYS_SCRN_BPP:    DU16 16;  // requested BPP
 //SYS_SCRN_BPP:    DU16 8;  // requested BPP
@@ -367,4 +373,4 @@ the code segment with a far jump.
 	DU16	CGDT.boot_cs;
 #assert $$+16<=0xFFFF
 }
- 
+

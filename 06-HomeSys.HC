@@ -29,8 +29,11 @@ U0 StartUpTasks()
   "Boot Time:%7.3fs\n",tS;
   XTalk(user1,"Cd;#include \"07-Once\";\n");
   Silent;	//no output to scrn
-//  ACInit("/*;!*/Bible.TXT*");
+  ACInit("/*;!*/Bible.TXT*");
   Silent(OFF); //no output to scrn
+
+  XTalk(user1,"Cd(\"/Efisource\");Dir;\n");
+
 }
 
 StartUpTasks;

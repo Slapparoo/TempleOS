@@ -400,29 +400,27 @@ _GR_ROP_EQU_U8_NO_CLIPPING::
 _extern _GR_ROP_EQU_U8_NO_CLIPPING U0 GrRopEquU8NoClipping_(I64 ch,
 	U8 *dst,I64 width_internal);
 
+/**
+This is the main font draw for Adam, it only draws the foreground color
+*/ 
 U0 GrRopEquU8NoClipping(I64 ch, U8 *dst,I64 width_internal) {
-  U64 letterT = text.font[ch & 0xFF], i;
-  if (letterT == 0) return;
-
+  U8 *fp = text.font(U8*) + ((ch & 0xFF) * FONT_HEIGHT);
 
   U8 c = ch.u8[1] & 0xFF;
   U8 reg RBX color = c;
+  U64 ix = FONT_WIDTH - 1, i = 0;
 
-  dst += ((FONT_HEIGHT-8) >> 1) * width_internal;
+  for (; i < FONT_WIDTH * FONT_HEIGHT; i++) {
+    if (Bt(fp, i)) {
+      *dst = color;
+    }
+    dst++;
 
-  for (i= 0; i < 64; i++) {
-   if (letterT & 0x1) {
-     *dst = color;
-   }
-   dst++;
-
-   if (i & 0x7 == 0x7) {
-     dst += width_internal - FONT_WIDTH;
-   }
-   letterT = letterT >>1;
+    if (i & ix == ix) {
+      dst += width_internal - FONT_WIDTH;
+    }
   }
 } 
-
 
 public _extern _IS_PIX_COVERED0 Bool IsPixCovered0(
 	CTask *task,I64 x,I64 y);//No clipping

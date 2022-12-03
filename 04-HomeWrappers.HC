@@ -38,7 +38,23 @@ public U0 rb()
   return Reboot;
 }
 
-public I64 dir()
+public I64 ll()
 {
-  Dir;
+  return Dir;
 }
+
+public I64 ls(U8 * dir)
+{
+  return Dir(dir);
+}
+
+public I64 cd(U8 * dir)
+{
+  return Cd(dir);
+}
+
+public I64 rm(U8 * dir)
+{
+  return Del(dir);
+}
+

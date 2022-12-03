@@ -4079,6 +4079,6 @@ public class CCanvas {
 };
 
 // toggle whether DoDoc inserts the cusrsor position at save
-#define DD_INSERT_CURSOR 0
+#define DD_INSERT_CURSOR 1
 
-#help_index "" 
+#help_index ""

@@ -13,7 +13,14 @@ U8 *kernel_cfg_options="MemInit\0HeapInit\0VarInit\0StaffMode\0"
 #define CFG_DONT_PROBE		7
 #define CFG_MOUNT_IDE_AUTO	8
 #define CFG_DBG_DISTRO	9
-#define CFG_OPTIONS_NUM		10
+
+#define CFG_SRN_WIDTH	10
+#define CFG_SRN_HEIGHT	11
+#define CFG_SRN_BPP	    12
+
+
+
+#define CFG_OPTIONS_NUM		13
 
 #define CFG_HELP		10
 

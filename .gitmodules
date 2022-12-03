@@ -1,3 +1,6 @@
 [submodule "erythros"]
 	path = erythros
 	url = https://github.com/jq2/erythros
+[submodule "Efisource"]
+	path = Efisource
+	url = git@github.com:Slapparoo/TempleOs-efi.git

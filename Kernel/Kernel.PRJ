@@ -31,6 +31,7 @@
 #include "Mem/MakeMem"
 #include "Lib/FontStd"
 #include "Lib/FontCyrillic"
+#include "Lib/FontStd8x12"
 #include "StrB"
 #include "KHashA"
 #include "KInts"
