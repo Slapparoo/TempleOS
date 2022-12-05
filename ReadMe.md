@@ -39,6 +39,8 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 
 [discussions](https://github.com/Slapparoo/TempleOS-EE/discussions)
 
+[Log a ticket, issue or feature request](https://github.com/Slapparoo/TempleOS-EE/issues) 
+
 ## Blog Posts
 <ul>
   {% for post in site.posts %}
