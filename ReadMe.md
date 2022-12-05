@@ -13,7 +13,7 @@ Explorers Edition builds on top of the base TempleOS to add new hardware support
 What I interpret as Terry's intention for the OS will be honoured what I interpret as Gods intention will not, with the Ultimate Goal being a light weight Hobby OS, that is a fun place to explore and develop new ideas. Something that stands apart from the main stream Commercial OS's and is developed independently and encourages users to get in and get their hands dirty and try new things.
 
 ## Current Goals
-The initial Goals are to bring the core of the OS up so it can be installed and run on (as many as possible) x64 PC's
+The current Goals are to enable TempleOS to be installed natively and self contained on as many PC's as possible (the idea being no tols outside of TempleOS are required for Build, Boot, Install)
 
 * Full UEFI boot compatability, natively inside TempleOS
 * New Compiler backend to generate ARM Binaries (To allow TempleOS to run on metal on AN Apple M1 or Raspberry PI for example).
