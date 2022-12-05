@@ -37,6 +37,8 @@ The initial Goals are to bring the core of the OS up so it can be installed and 
 
 [Linux TempleOS utilities](https://github.com/Slapparoo/templeos-utils)
 
+[discussions](https://github.com/Slapparoo/TempleOS-EE/discussions)
+
 ## Blog Posts
 <ul>
   {% for post in site.posts %}
