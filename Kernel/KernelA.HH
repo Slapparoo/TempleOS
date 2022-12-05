@@ -4075,10 +4075,10 @@ public class CCanvas {
 
   U0 (*printFont)(CCanvas *this, U8 letter, I64 x, I64 y, U32 fg, U32 bg);
   U0 (*printString)(CCanvas *this, U8 *str, I64 x, I64 y, U32 fg, U32 bg);
-  U0 (*fullScrnDraw)(CCanvas *this, CCanvas *dest, U8* grBody, U8* screenCache);
+  U0 (*fullScrnDraw)(CCanvas *this, CCanvas *dest, U8* grBody);
 };
 
 // toggle whether DoDoc inserts the cusrsor position at save
-#define DD_INSERT_CURSOR 1
+#define DD_INSERT_CURSOR 0
 
 #help_index ""

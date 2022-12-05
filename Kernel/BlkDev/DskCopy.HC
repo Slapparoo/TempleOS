@@ -35,7 +35,6 @@ Bool CopySingle(U8 *f1,U8 *f2) //Just one file
   Free(absf2);
   if (attr1!=attr2)
     return CopySingleZ(f1,f2);
-//  buf=MAlloc(COPY_BUF_BLKS<<BLK_SIZE_BITS);
   if (attr1 & RS_ATTR_CONTIGUOUS)
     in_file=FOpen(f1,"rc");
   else
@@ -69,14 +68,12 @@ Bool CopySingle(U8 *f1,U8 *f2) //Just one file
       out_file->de.attr=FileAttr(f2,in_file->de.attr);
       FClose(out_file);
       FClose(in_file);
-//      Free(buf);
       return TRUE;
     } else
       PrintErr("File not found: \"%s\".\n",f2);
     FClose(in_file);
   } else
     PrintErr("File not found: \"%s\".\n",f1);
-//  Free(buf);
   return FALSE;
 }
 

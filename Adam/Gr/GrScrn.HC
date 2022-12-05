@@ -445,7 +445,7 @@ U0 GrUpdateScrn(U64)
 	  gr.dc2->height*gr.dc2->width_internal>>3);
 
       // screen cache is no longer used   
-      screenCanvas->fullScrnDraw(screenCanvas, screenCanvas, gr.dc2->body, screenCache);
+      screenCanvas->fullScrnDraw(screenCanvas, screenCanvas, gr.dc2->body);
   } else if (!Bt(&sys_run_level,RLf_VGA)) { //if text mode {
     GrUpdateTextModeText;
   } else {
