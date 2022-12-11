@@ -1,0 +1,72 @@
+#help_index "Graphics"
+
+U0 GrInit1()
+{
+	DefineListLoad("ST_SPRITE_ELEM_TYPES",
+
+						"End\0"
+						"Color\0"
+						"Dither Color\0"
+						"Thick\0"
+						"Planar Symmetry\0"
+						"Transform On\0"
+						"Transform Off\0"
+						"Shift\0"
+						"Point\0"
+						"PolyPoint\0"
+						"Line\0"
+						"PolyLine\0"
+						"Rect\0"
+						"Rotated Rect\0"
+						"Circle\0"
+						"Ellipse\0"
+						"Polygon\0"
+						"BSpline2\0"
+						"BSpline2 Closed\0"
+						"BSpline3\0"
+						"BSpline3 Closed\0"
+						"Flood Fill\0"
+						"Flood Fill Not Color\0"
+						"BitMap\0"
+						"Mesh\0"
+						"Shiftable Mesh\0"
+						"Arrow\0"
+						"Text\0"
+						"Text Box\0"
+						"Text Diamond\0");
+
+	DefineListLoad("ST_SPRITE_ELEM_CODES",
+
+						"End\0"
+						"Color\0"
+						"Color\0"
+						"Thick\0"
+						"PlanarSymmetry\0"
+						"Transform\0"
+						"Transform\0"
+						"Shift\0"
+						"Pt\0"
+						"PolyPt\0"
+						"Line\0"
+						"PolyLine\0"
+						"Rect\0"
+						"Rect\0"
+						"Circle\0"
+						"Ellipse\0"
+						"Polygon\0"
+						"BSpline2\0"
+						"BSpline2\0"
+						"BSpline3\0"
+						"BSpline3\0"
+						"FloodFill\0"
+						"FloodFill\0"
+						"BitMap\0"
+						"Mesh\0"
+						"Mesh\0"
+						"Arrow\0"
+						"Text\0"
+						"TextBox\0"
+						"TextDiamond\0");
+}
+
+GrInit1;

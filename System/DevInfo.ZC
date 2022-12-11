@@ -1,0 +1,229 @@
+#help_index "PCI;Processor;Devices;Info"
+
+U0 PCILookUpDevs()
+{
+	CPCIDev	*tmppci;
+	I64		 w1, w2, b, d, f, timeout = 32 * 8 * 2;
+	CDoc	*doc;
+
+	if (dev.pci_head.next != &dev.pci_head)
+		return;
+	doc = DocRead(PCI_DEV_FILE, DOCF_PLAIN_TEXT | DOCF_NO_CURSOR);
+	for (b = 0; b < sys_pci_buses; b++)
+		for (d = 0; d < 32; d++)
+			for (f = 0; f < 8; f++)
+			{
+				w1 = PCIReadU16(b, d, f, PCIR_VENDOR_ID);
+				Yield; // keep from hanging graphics on bare-metal
+				if (w1 != 0xFFFF)
+				{
+					tmppci = SysCAlloc(sizeof(CPCIDev));
+					tmppci->bus = b;
+					tmppci->dev = d;
+					tmppci->fun = f;
+					tmppci->vendor_id = w1;
+					tmppci->device_id = w2 = PCIReadU16(b, d, f, PCIR_DEVICE_ID);
+					tmppci->sub_code =		PCIReadU8(b, d, f, PCIR_SUB_CODE);
+					tmppci->class_code =	PCIReadU8(b, d, f, PCIR_CLASS_CODE);
+					tmppci->prog_if = 		PCIReadU8(b, d, f, PCIR_PROG_IF);
+					tmppci->revision_id = PCIReadU8(b, d, f, PCIR_REVISION_ID);
+					tmppci->bist =				PCIReadU8(b, d, f, PCIR_BIST);
+					tmppci->header_type = PCIReadU8(b, d, f, PCIR_HEADER_TYPE);
+					tmppci->latency_timer=PCIReadU8(b, d, f, PCIR_LATENCY_TIMER);
+					tmppci->capabilities= PCIReadU8(b, d, f, PCIR_CAPABILITIES);
+					tmppci->cache_line_size=PCIReadU8(b, d, f, PCIR_CACHE_LINE_SIZE);
+					tmppci->subsys_id = 	PCIReadU16(b, d, f, PCIR_SUBSYS_ID);
+					tmppci->subsys_vendor_id=PCIReadU16(b, d, f, PCIR_SUBSYS_VENDOR_ID);
+					tmppci->erom =				PCIReadU32(b, d, f, PCIR_EXPANSION_ROM);
+					tmppci->base[0] = 		PCIReadU32(b, d, f, PCIR_BASE0);
+					tmppci->base[1] = 		PCIReadU32(b, d, f, PCIR_BASE1);
+					tmppci->base[2] = 		PCIReadU32(b, d, f, PCIR_BASE2);
+					tmppci->base[3] = 		PCIReadU32(b, d, f, PCIR_BASE3);
+					tmppci->base[4] = 		PCIReadU32(b, d, f, PCIR_BASE4);
+					tmppci->base[5] = 		PCIReadU32(b, d, f, PCIR_BASE5);
+					PCILookUpSingle(doc, w1, w2, &tmppci->vendor_str, &tmppci->dev_id_str);
+					QueueInsert(tmppci, dev.pci_head.last);
+					timeout = 32 * 8 * 2;
+				}
+				else if (sys_pci_buses == 256 && --timeout <= 0)
+					goto lud_done;
+			}
+lud_done:
+	DocDel(doc);
+}
+
+public CPCIDev *PCIDevFind(U16 class_code=NULL, U16 sub_code=NULL,
+												U16 vendor_id=NULL, U16 device_id=NULL,
+												U8 _bus=0xFF, U8 _dev=0xFF, U8 _fun=0xFF)
+{//return first device with matching class & subcode, vendor & device id, or a specific device.
+	PCILookUpDevs;
+	CPCIDev *p = dev.pci_head.next;
+
+	while (p != &dev.pci_head)
+	{
+		if (p->vendor_id == vendor_id && p->device_id == device_id ||
+				p->class_code == class_code && p->sub_code == sub_code ||
+				p->bus == _bus && p->dev == _dev && p->fun == _fun)
+
+			return p;
+ 
+		p = p->next;
+	}
+	return NULL;
+}
+
+public U0 PCIRep()
+{//Report description of PCI devices.
+	CPCIDev *tmppci;
+
+	"PCI Buses:%d\n", sys_pci_buses;
+	if (!FileFind(PCI_DEV_FILE))
+	{
+		"You don't have the PCI device file.\n";
+		return;
+	}
+	PCILookUpDevs;
+	tmppci = dev.pci_head.next;
+	if (!IsRaw)
+		"$$LTCYAN$$B :D :F CC-SC-PI\n$$FG$$";
+	else
+		"B :D :F CC-SC-PI\n";
+	while (tmppci != &dev.pci_head)
+	{
+		"%02X:%02X:%01X %02X-%02X-%02X ",
+					tmppci->bus, tmppci->dev, tmppci->fun,
+					tmppci->class_code, tmppci->sub_code, tmppci->prog_if;
+		if (!IsRaw)
+			"$$GREEN$$";
+		"%s ", tmppci->vendor_str;
+		if (!IsRaw)
+			"$$CYAN$$";
+		"%s", tmppci->dev_id_str;
+		if (!IsRaw)
+			"$$FG$$";
+		'\n';
+					, 
+		tmppci=tmppci->next;
+	}
+}
+
+#help_index "Info;Memory/Info"
+public U0 MemBIOSRep()
+{//Report the memory ranges reported by the BIOS at boot.
+	U16 		*m01 = MEM_E801;
+	CMemE820	*m20 = MEM_E820;
+	CMemRange	*tmpmr;
+
+	if (!IsRaw)
+		"$$PURPLE$$Standard Addresses$$FG$$\n";
+	else
+		"Standard Addresses\n";
+
+	"FEE00000-FEE00FFF See $LK,"APIC",A="MN:LAPIC_BASE"$\n\n";
+
+	if (!IsRaw)
+		"$$PURPLE$$Linear Framebuffer$$FG$$\n";
+	else
+		"Linear Framebuffer\n";
+
+	"%08X-%08X  \n", text.fb_alias, text.fb_alias(U8 *) + text.buffer_size - 1;
+
+	if (!IsRaw)
+		"\n$$PURPLE$$32 Bit Device Mem$$FG$$\n";
+	else
+		"\n32 Bit Device Mem\n";
+
+	while (LBts(&sys_semas[SEMA_DEV_MEM], 0))
+		Yield;
+	tmpmr = dev.mem32_head.next;
+	while (tmpmr != &dev.mem32_head)
+	{
+		"%z: %08X-%08X\n", tmpmr->type, "Unused\0RAM\0Device", tmpmr->base, tmpmr->base + tmpmr->size - 1;
+		tmpmr = tmpmr->next;
+	}
+	LBtr(&sys_semas[SEMA_DEV_MEM], 0);
+
+	if (!IsRaw)
+		"\n$$PURPLE$$BIOS Memory Report 15:E801$$FG$$\n";
+	else
+		"\nBIOS Memory Report 15:E801\n";
+
+	"0000000000000000-%016X\n", 0x100000 + m01[0] * 1024 - 1;
+	"0000000001000000-%016X\n", SYS_16MEG_AREA_LIMIT + m01[1] * 64 * 1024  - 1;
+
+	if (m20->type)
+	{
+		if (!IsRaw)
+			"\n$$PURPLE$$BIOS Memory Report 15:E820$$FG$$\n";
+		else
+			"\nBIOS Memory Report 15:E820\n";
+		while (m20->type)
+		{
+			if (!IsRaw)
+				"$$RED$$";
+			switch(m20->type)
+			{
+				case MEM_E820t_USABLE:
+					if (!IsRaw)
+						"$$GREEN$$";
+					"Usable:      ";
+					break;
+
+				case MEM_E820t_ACPI:
+				case MEM_E820t_ACPI_NVS:
+					"ACPI:        ";
+					 break;
+
+				case MEM_E820t_BAD_MEM:
+					"Bad memory:  ";
+					 break;
+
+				case MEM_E820t_PERM_MEM:
+					"Perm memory: ";
+
+				case MEM_E820t_RESERVED:
+				default:
+					"Reserved:    ";
+					break;
+			 }
+			"%016X-%016X", m20->base, m20->base + m20->len - 1;
+			if (!IsRaw)
+				"$$FG$$";
+			'\n';
+			m20++;
+		}
+	}
+	if (!IsRaw)
+		"\n$$PURPLE$$BIOS Total Memory Report$$FG$$: ";
+	else
+		"\nBIOS Total Memory Report: ";
+
+	if (MemBIOSTotal < 1024 * 1024 * 1024)
+		"%03d MiB\n", MemBIOSTotal / 1024 / 1024; 		
+	else
+		"%04d GiB\n", CeilU64(MemBIOSTotal / 1024 / 1024, 1024) / 1024;
+}
+
+public U0 MemPageRep()
+{//Page Table Report.
+	"MAPPED\t  :%010X with ", mem_mapped_space;
+	if (!IsRaw)
+		"$$RED$$";
+	if (Bt(&mem_page_size, 30))
+		"1GIG";
+	else
+		"2MEG";
+	if (!IsRaw)
+		"$$FG$$";
+
+	" pages\n";
+
+	"PML2\t  :%010X 2MEG  :%08X\n",
+				*MEM_PML2(U64 *), *MEM_2MEG_NUM(U64 *);
+	"PML3\t  :%010X 1GIG  :%08X\n",
+				*MEM_PML3(U64 *), *MEM_1GIG_NUM(U64 *);
+	"PML4\t  :%010X 512GIG:%08X\n",
+				*MEM_PML4(U64 *), *MEM_512GIG_NUM(U64 *);
+	"FIXED_AREA:%010X\n", SYS_FIXED_AREA;
+	"HEAP_BASE :%010X\nHEAP_LIMIT:%010X\n", mem_heap_base, mem_heap_limit;
+}

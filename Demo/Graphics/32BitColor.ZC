@@ -1,0 +1,39 @@
+#define SQUARE_SIZE		20
+#define SQUARE_GAP		5
+#define SQUARE_DELAY	5 // mS
+
+I0 DrawPixel(I64 x, I64 y, CBGR24 color)
+{
+	text.fb_alias[x + y * GR_WIDTH] = color;
+}
+
+I0 Color32Demo()
+{
+	I64		i, j, x, y;
+	CBGR24	color;
+
+	"\nPress any key to exit demo.\n\n";
+
+	Sleep(500);
+
+	text.is_fb_busy = TRUE;
+
+	while (!CharScan)
+	{
+		x = FloorI64(RandU16 % GR_WIDTH,  SQUARE_SIZE + SQUARE_GAP);
+		y = FloorI64(RandU16 % GR_HEIGHT, SQUARE_SIZE + SQUARE_GAP);
+		color = RandU32;
+
+		for (i = 0; i < SQUARE_SIZE; i++)
+			for (j = 0; j < SQUARE_SIZE; j++)
+				DrawPixel(x + i, y + j, color);
+
+		Sleep(SQUARE_DELAY);
+	}
+
+	text.is_fb_busy = FALSE;
+	LFBFlush;
+
+}
+
+Color32Demo;
