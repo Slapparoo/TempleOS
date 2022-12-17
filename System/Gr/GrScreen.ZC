@@ -352,7 +352,7 @@ U0 GrUpdateScreen()
 
     MemSet(gr.dc2->body, TRANSPARENT, gr.dc2->width_internal * gr.dc2->height);
     MemSet(gr.dc->body, TRANSPARENT, gr.dc->width_internal * gr.dc->height);
-	while (tasks_done)  // wait for GrUpdateText
+	while (tasks_done)  // wait for GrUpdateText
 		Yield;
 	GrUpdateTasks; // write to dc2
 

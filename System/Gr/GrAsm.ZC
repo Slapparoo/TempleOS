@@ -25,7 +25,7 @@ U0 GrDrawCharNoClippingU32(U32 ch, U32 reg RBX fgColor, U32 reg RCX bgColor,  U3
 		*dst = fgColor;
     }	
   }
-} 
+} 
 
 
 public Bool IsPixCovered0(CTask *task, I64 x, I64 y) 
