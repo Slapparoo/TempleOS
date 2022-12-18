@@ -4622,19 +4622,7 @@ class CProgress
 
 // toggle whether DoDoc inserts the cusrsor position at save
 #define DD_NO_INSERT_CURSOR 		1
+#define DD_INSERT_CURSOR 		1
 
-#help_index "Package Manager"
-class CInstallerPackage {
-	U8* name;
-	U8* version;
-	U8* dependancies;
-	U8* url;
-	U8* addFiles;
-	U8* removeFiles;
-	U8* description;
-    Bool rebuildKernel;
-	Bool rebuildCompiler;
-	Bool reboot;
-};
 
 #help_index ""
